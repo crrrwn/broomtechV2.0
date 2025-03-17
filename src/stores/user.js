@@ -1,5 +1,4 @@
-"use client"
-
+// src/stores/user.js
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import { getAuth, signOut } from "firebase/auth"
@@ -59,4 +58,3 @@ export const useUserStore = defineStore("user", () => {
     logout,
   }
 })
-

@@ -1,11 +1,12 @@
-<template>
+```vue type="vue" project="Vue Login Form" file="Register.vue"
+[v0-no-op-code-block-prefix]<template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
         <p class="mt-2 text-center text-sm text-gray-600">
           Or
-          <router-link to="/login" class="font-medium text-primary-600 hover:text-primary-500">
+          <router-link to="/login" class="font-medium text-blue-600 hover:text-blue-500">
             sign in to your existing account
           </router-link>
         </p>
@@ -35,7 +36,7 @@
                 type="text" 
                 required 
                 v-model="userData.firstName"
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tl-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tl-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
                 placeholder="First Name" 
               />
             </div>
@@ -47,7 +48,7 @@
                 type="text" 
                 required 
                 v-model="userData.lastName"
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tr-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tr-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
                 placeholder="Last Name" 
               />
             </div>
@@ -59,7 +60,7 @@
               name="middleName" 
               type="text" 
               v-model="userData.middleName"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Middle Name (Optional)" 
             />
           </div>
@@ -71,7 +72,7 @@
               type="text" 
               required 
               v-model="userData.address"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Address" 
             />
           </div>
@@ -84,7 +85,7 @@
               autocomplete="email" 
               required 
               v-model="userData.email"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Email address" 
             />
           </div>
@@ -96,7 +97,7 @@
               type="tel" 
               required 
               v-model="userData.phone"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Phone Number" 
             />
           </div>
@@ -109,7 +110,7 @@
               autocomplete="new-password" 
               required 
               v-model="userData.password"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Password" 
             />
           </div>
@@ -122,7 +123,7 @@
               autocomplete="new-password" 
               required 
               v-model="userData.confirmPassword"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
               placeholder="Confirm Password" 
             />
           </div>
@@ -132,10 +133,10 @@
           <button 
             type="submit" 
             :disabled="loading"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
             <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="h-5 w-5 text-primary-500 group-hover:text-primary-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg class="h-5 w-5 text-blue-500 group-hover:text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
               </svg>
             </span>
@@ -159,7 +160,7 @@
             type="button" 
             @click="handleGoogleSignup"
             :disabled="loading"
-            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
           >
             <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
@@ -239,6 +240,7 @@ const validateForm = () => {
   return true;
 };
 
+// Replace the handleRegister function with this updated version
 const handleRegister = async () => {
   if (!validateForm()) return;
   
@@ -246,6 +248,18 @@ const handleRegister = async () => {
   error.value = '';
   
   try {
+    console.log('Attempting to register user:', userData.email);
+    
+    // Check if auth store exists
+    if (!authStore) {
+      throw new Error('Authentication service is not available');
+    }
+    
+    // Check if register method exists
+    if (typeof authStore.register !== 'function') {
+      throw new Error('Registration method is not available');
+    }
+    
     // Register the user
     await authStore.register(userData.email, userData.password, {
       firstName: userData.firstName,
@@ -256,17 +270,32 @@ const handleRegister = async () => {
       role: 'user'
     });
     
+    console.log('Registration successful');
+    
     // Show success notification
-    notificationStore.showNotification({
-      type: 'success',
-      message: 'Registration successful! Please verify your email.'
-    });
+    if (notificationStore && typeof notificationStore.showNotification === 'function') {
+      notificationStore.showNotification({
+        type: 'success',
+        message: 'Registration successful! Please verify your email.'
+      });
+    }
+    
+    // Store the email in session storage for the verification page
+    sessionStorage.setItem('pendingVerificationEmail', userData.email);
     
     // Redirect to email verification page
-    router.push('/verify-email');
+    router.push(`/verify-email?email=${encodeURIComponent(userData.email)}`);
   } catch (err) {
     console.error('Registration error:', err);
-    error.value = getErrorMessage(err.code);
+    
+    // Improved error handling
+    if (err && err.code) {
+      error.value = getErrorMessage(err.code);
+    } else if (err && err.message) {
+      error.value = err.message;
+    } else {
+      error.value = 'An unexpected error occurred during registration. Please try again.';
+    }
   } finally {
     loading.value = false;
   }
@@ -277,12 +306,29 @@ const handleGoogleSignup = async () => {
   error.value = '';
   
   try {
+    console.log('Attempting Google sign-up');
+    
+    // Check if auth store exists
+    if (!authStore) {
+      throw new Error('Authentication service is not available');
+    }
+    
+    // Check if Google login method exists
+    if (typeof authStore.loginWithGoogle !== 'function') {
+      throw new Error('Google sign-up method is not available');
+    }
+    
     await authStore.loginWithGoogle();
     
-    notificationStore.showNotification({
-      type: 'success',
-      message: 'Successfully signed up with Google!'
-    });
+    console.log('Google sign-up successful');
+    
+    // Show success notification
+    if (notificationStore && typeof notificationStore.showNotification === 'function') {
+      notificationStore.showNotification({
+        type: 'success',
+        message: 'Successfully signed up with Google!'
+      });
+    }
     
     // Redirect based on user role
     if (authStore.isAdmin) {
@@ -294,7 +340,15 @@ const handleGoogleSignup = async () => {
     }
   } catch (err) {
     console.error('Google sign-up error:', err);
-    error.value = 'Failed to sign up with Google. Please try again.';
+    
+    // Improved error handling
+    if (err && err.code) {
+      error.value = getErrorMessage(err.code);
+    } else if (err && err.message) {
+      error.value = err.message;
+    } else {
+      error.value = 'Failed to sign up with Google. Please try again.';
+    }
   } finally {
     loading.value = false;
   }
@@ -310,9 +364,14 @@ const getErrorMessage = (errorCode) => {
       return 'Email/password accounts are not enabled. Please contact support.';
     case 'auth/weak-password':
       return 'Password is too weak. Please choose a stronger password.';
+    case 'auth/popup-closed-by-user':
+      return 'Google sign-up was cancelled. Please try again.';
+    case 'auth/cancelled-popup-request':
+      return 'Another authentication request is in progress.';
+    case 'auth/popup-blocked':
+      return 'Sign-up popup was blocked by your browser. Please allow popups for this site.';
     default:
       return 'An error occurred during registration. Please try again.';
   }
 };
 </script>
-
