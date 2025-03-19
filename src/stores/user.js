@@ -1,3 +1,5 @@
+"use client"
+
 import { defineStore } from "pinia"
 import { ref } from "vue"
 import { getAuth, signOut } from "firebase/auth"
