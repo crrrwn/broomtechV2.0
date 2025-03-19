@@ -15,6 +15,8 @@ export async function geocodeAddress(address) {
     // For testing/debugging, return dummy coordinates if the API fails
     // This ensures the map will always show something
     const dummyCoordinates = {
+      'calapan': { lat: 13.4105, lng: 121.1817 },
+      'oriental mindoro': { lat: 13.0565, lng: 121.4069 },
       'manila': { lat: 14.5995, lng: 120.9842 },
       'quezon city': { lat: 14.6760, lng: 121.0437 },
       'makati': { lat: 14.5547, lng: 121.0244 },
@@ -24,7 +26,7 @@ export async function geocodeAddress(address) {
     
     // Try the API first
     try {
-      const response = await fetch(`https://maps.gomaps.pro/maps/api/geocode/json?address=oriental mindoro&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=en&key=AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP`);
+      const response = await fetch(`https://maps.gomaps.pro/maps/api/geocode/json?address=${encodeURIComponent(address)}&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=ph&key=AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP`);
       const data = await response.json();
       
       console.log('Geocoding API response:', data);
@@ -50,13 +52,13 @@ export async function geocodeAddress(address) {
       }
     }
     
-    // Default to Manila if no match
-    console.log('Using default Manila coordinates');
-    return { lat: 14.5995, lng: 120.9842 };
+    // Default to Calapan City, Oriental Mindoro if no match
+    console.log('Using default Calapan City, Oriental Mindoro coordinates');
+    return { lat: 13.4105, lng: 121.1817 };
   } catch (error) {
     console.error('Geocoding error:', error);
-    // Default to Manila
-    return { lat: 14.5995, lng: 120.9842 };
+    // Default to Calapan City, Oriental Mindoro
+    return { lat: 13.4105, lng: 121.1817 };
   }
 }
 
