@@ -1,22 +1,23 @@
-```vue type="vue" project="Vue Login Form" file="Register.vue"
-[v0-no-op-code-block-prefix]<template>
+<template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">Create your account</h2>
         <p class="mt-2 text-center text-sm text-gray-600">
           Or
-          <router-link to="/login" class="font-medium text-blue-600 hover:text-blue-500">
+          <router-link to="/login" class="font-medium text-primary-600 hover:text-primary-500">
             sign in to your existing account
           </router-link>
         </p>
       </div>
-      
-      <div v-if="error" class="bg-red-50 border-l-4 border-red-400 p-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+
+      <!-- Register form -->
+      <div class="bg-white py-8 px-6 sm:px-8 shadow-md border border-gray-200 rounded-xl transition-all duration-500">
+        <!-- Error message -->
+        <div v-if="error" class="error-message mb-6">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
             </svg>
           </div>
           <div class="ml-3">
@@ -36,7 +37,7 @@
                 type="text" 
                 required 
                 v-model="userData.firstName"
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tl-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tl-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
                 placeholder="First Name" 
               />
             </div>
@@ -48,7 +49,7 @@
                 type="text" 
                 required 
                 v-model="userData.lastName"
-                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tr-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+                class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-tr-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
                 placeholder="Last Name" 
               />
             </div>
@@ -60,7 +61,7 @@
               name="middleName" 
               type="text" 
               v-model="userData.middleName"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Middle Name (Optional)" 
             />
           </div>
@@ -72,7 +73,7 @@
               type="text" 
               required 
               v-model="userData.address"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Address" 
             />
           </div>
@@ -85,7 +86,7 @@
               autocomplete="email" 
               required 
               v-model="userData.email"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Email address" 
             />
           </div>
@@ -97,7 +98,7 @@
               type="tel" 
               required 
               v-model="userData.phone"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Phone Number" 
             />
           </div>
@@ -110,7 +111,7 @@
               autocomplete="new-password" 
               required 
               v-model="userData.password"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Password" 
             />
           </div>
@@ -123,7 +124,7 @@
               autocomplete="new-password" 
               required 
               v-model="userData.confirmPassword"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" 
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm" 
               placeholder="Confirm Password" 
             />
           </div>
@@ -133,10 +134,10 @@
           <button 
             type="submit" 
             :disabled="loading"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
           >
             <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="h-5 w-5 text-blue-500 group-hover:text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <svg class="h-5 w-5 text-primary-500 group-hover:text-primary-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
               </svg>
             </span>
@@ -160,7 +161,7 @@
             type="button" 
             @click="handleGoogleSignup"
             :disabled="loading"
-            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
           >
             <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
               <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
@@ -179,10 +180,16 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '../../stores/auth';
-import { useNotificationStore } from '../../stores/notification';
+import { ref, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { 
+  createUserWithEmailAndPassword, 
+  updateProfile,
+  signInWithPopup, 
+  GoogleAuthProvider 
+} from 'firebase/auth'
+import { auth } from '../../firebase/config'
+import { useAuthStore } from '../../stores/auth'
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -240,26 +247,13 @@ const validateForm = () => {
   return true;
 };
 
-// Replace the handleRegister function with this updated version
 const handleRegister = async () => {
   if (!validateForm()) return;
   
-  loading.value = true;
-  error.value = '';
+  error.value = ''
+  isLoading.value = true
   
   try {
-    console.log('Attempting to register user:', userData.email);
-    
-    // Check if auth store exists
-    if (!authStore) {
-      throw new Error('Authentication service is not available');
-    }
-    
-    // Check if register method exists
-    if (typeof authStore.register !== 'function') {
-      throw new Error('Registration method is not available');
-    }
-    
     // Register the user
     await authStore.register(userData.email, userData.password, {
       firstName: userData.firstName,
@@ -270,34 +264,19 @@ const handleRegister = async () => {
       role: 'user'
     });
     
-    console.log('Registration successful');
-    
     // Show success notification
-    if (notificationStore && typeof notificationStore.showNotification === 'function') {
-      notificationStore.showNotification({
-        type: 'success',
-        message: 'Registration successful! Please verify your email.'
-      });
-    }
-    
-    // Store the email in session storage for the verification page
-    sessionStorage.setItem('pendingVerificationEmail', userData.email);
+    notificationStore.showNotification({
+      type: 'success',
+      message: 'Registration successful! Please verify your email.'
+    });
     
     // Redirect to email verification page
-    router.push(`/verify-email?email=${encodeURIComponent(userData.email)}`);
+    router.push('/verify-email');
   } catch (err) {
     console.error('Registration error:', err);
-    
-    // Improved error handling
-    if (err && err.code) {
-      error.value = getErrorMessage(err.code);
-    } else if (err && err.message) {
-      error.value = err.message;
-    } else {
-      error.value = 'An unexpected error occurred during registration. Please try again.';
-    }
+    error.value = getErrorMessage(err.code);
   } finally {
-    loading.value = false;
+    isLoading.value = false
   }
 };
 
@@ -306,72 +285,157 @@ const handleGoogleSignup = async () => {
   error.value = '';
   
   try {
-    console.log('Attempting Google sign-up');
-    
-    // Check if auth store exists
-    if (!authStore) {
-      throw new Error('Authentication service is not available');
-    }
-    
-    // Check if Google login method exists
-    if (typeof authStore.loginWithGoogle !== 'function') {
-      throw new Error('Google sign-up method is not available');
-    }
-    
     await authStore.loginWithGoogle();
     
-    console.log('Google sign-up successful');
-    
-    // Show success notification
-    if (notificationStore && typeof notificationStore.showNotification === 'function') {
-      notificationStore.showNotification({
-        type: 'success',
-        message: 'Successfully signed up with Google!'
-      });
-    }
+    notificationStore.showNotification({
+      type: 'success',
+      message: 'Successfully signed up with Google!'
+    });
     
     // Redirect based on user role
-    if (authStore.isAdmin) {
-      router.push('/admin');
-    } else if (authStore.isDriver) {
-      router.push('/driver');
-    } else {
-      router.push('/user');
-    }
+    redirectBasedOnRole()
   } catch (err) {
     console.error('Google sign-up error:', err);
-    
-    // Improved error handling
-    if (err && err.code) {
-      error.value = getErrorMessage(err.code);
-    } else if (err && err.message) {
-      error.value = err.message;
-    } else {
-      error.value = 'Failed to sign up with Google. Please try again.';
-    }
+    error.value = 'Failed to sign up with Google. Please try again.';
   } finally {
-    loading.value = false;
+    isLoading.value = false
   }
-};
+}
 
+// Redirect based on user role
+const redirectBasedOnRole = () => {
+  if (userRole.value === 'driver') {
+    router.push('/driver')
+  } else {
+    router.push('/user')
+  }
+}
+
+// Error message handler
 const getErrorMessage = (errorCode) => {
   switch (errorCode) {
     case 'auth/email-already-in-use':
-      return 'This email is already registered.';
+      return 'This email is already in use. Please try another email or sign in.'
     case 'auth/invalid-email':
-      return 'Invalid email address.';
+      return 'Invalid email address format.'
+    case 'auth/weak-password':
+      return 'Password is too weak. Please choose a stronger password.'
     case 'auth/operation-not-allowed':
       return 'Email/password accounts are not enabled. Please contact support.';
     case 'auth/weak-password':
       return 'Password is too weak. Please choose a stronger password.';
-    case 'auth/popup-closed-by-user':
-      return 'Google sign-up was cancelled. Please try again.';
-    case 'auth/cancelled-popup-request':
-      return 'Another authentication request is in progress.';
-    case 'auth/popup-blocked':
-      return 'Sign-up popup was blocked by your browser. Please allow popups for this site.';
     default:
-      return 'An error occurred during registration. Please try again.';
+      return 'An error occurred during registration. Please try again.'
   }
-};
+}
 </script>
+
+<style scoped>
+/* Card shadow effects */
+.shadow-card {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+}
+
+.shadow-card-hover {
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+/* Form styling */
+.form-group {
+  @apply space-y-1;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply appearance-none block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-300 text-gray-900;
+}
+
+.form-icon {
+  @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
+}
+
+/* Button styling */
+.register-button {
+  @apply relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed;
+}
+
+/* Google Sign-Up Button */
+.google-signup-button {
+  @apply w-full flex items-center justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed;
+}
+
+.button-text {
+  @apply transition-all duration-300;
+}
+
+/* Error message styling */
+.error-message {
+  @apply bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md animate-fadeIn;
+}
+
+/* Password strength meter */
+.password-strength-meter {
+  @apply w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1;
+}
+
+.password-strength-bar {
+  @apply h-full transition-all duration-300 ease-out;
+}
+
+/* Role selection styling */
+.role-option-card {
+  @apply p-4 border border-gray-200 rounded-lg cursor-pointer transition-all duration-300 hover:border-green-500 hover:shadow-sm;
+}
+
+.role-selected {
+  @apply border-green-500 bg-gray-100 shadow-sm;
+}
+
+.role-icon-wrapper {
+  @apply flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600;
+}
+
+/* Underline animation for links */
+.underline-animation {
+  @apply relative;
+}
+
+.underline-animation::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-0 h-0.5 bg-green-500 transition-all duration-300;
+}
+
+.underline-animation:hover::after {
+  @apply w-full;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .form-input {
+    @apply py-2.5;
+  }
+  
+  .register-button, .google-signup-button {
+    @apply py-2.5;
+  }
+}
+</style>

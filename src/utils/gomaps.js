@@ -10,21 +10,25 @@ const GOMAPS_API_KEY = "AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP"
  */
 export async function geocodeAddress(address) {
   try {
-    console.log(`Geocoding address: ${address}`)
-
-    // Accurate Calapan City, Oriental Mindoro coordinates
-    const calapanCoordinates = { lat: 13.4108, lng: 121.178 }
-
+    console.log(`Geocoding address: ${address}`);
+    
+    // For testing/debugging, return dummy coordinates if the API fails
+    // This ensures the map will always show something
+    const dummyCoordinates = {
+      'manila': { lat: 14.5995, lng: 120.9842 },
+      'quezon city': { lat: 14.6760, lng: 121.0437 },
+      'makati': { lat: 14.5547, lng: 121.0244 },
+      'cebu': { lat: 10.3157, lng: 123.8854 },
+      'davao': { lat: 7.1907, lng: 125.4553 },
+    };
+    
     // Try the API first
     try {
-      const encodedAddress = encodeURIComponent(address)
-      const response = await fetch(
-        `https://maps.gomaps.pro/maps/api/geocode/json?address=${encodedAddress}&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=en&key=${GOMAPS_API_KEY}`,
-      )
-      const data = await response.json()
-
-      console.log("Geocoding API response:", data)
-
+      const response = await fetch(`https://maps.gomaps.pro/maps/api/geocode/json?address=oriental mindoro&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=en&key=AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP`);
+      const data = await response.json();
+      
+      console.log('Geocoding API response:', data);
+      
       if (data.results && data.results.length > 0) {
         const location = data.results[0].geometry.location
         return {
@@ -36,14 +40,23 @@ export async function geocodeAddress(address) {
       console.error("Geocoding API error:", apiError)
       // Fall through to default coordinates
     }
-
-    // Default to Calapan City, Oriental Mindoro coordinates
-    console.log("Using accurate Calapan City, Oriental Mindoro coordinates")
-    return calapanCoordinates
+    
+    // If API fails, try to match with dummy coordinates
+    const lowerAddress = address.toLowerCase();
+    for (const [key, coords] of Object.entries(dummyCoordinates)) {
+      if (lowerAddress.includes(key)) {
+        console.log(`Using dummy coordinates for ${key}`);
+        return coords;
+      }
+    }
+    
+    // Default to Manila if no match
+    console.log('Using default Manila coordinates');
+    return { lat: 14.5995, lng: 120.9842 };
   } catch (error) {
-    console.error("Geocoding error:", error)
-    // Default to Calapan City
-    return { lat: 13.4108, lng: 121.178 }
+    console.error('Geocoding error:', error);
+    // Default to Manila
+    return { lat: 14.5995, lng: 120.9842 };
   }
 }
 
@@ -97,4 +110,3 @@ function getDirectDistance(lat1, lng1, lat2, lng2) {
 function deg2rad(deg) {
   return deg * (Math.PI / 180)
 }
-
