@@ -1,7 +1,7 @@
 // GoMaps Pro API utility functions
 
 // API key
-const GOMAPS_API_KEY = "AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP"
+const GOMAPS_API_KEY = 'AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP';
 
 /**
  * Geocode an address to get coordinates
@@ -15,6 +15,8 @@ export async function geocodeAddress(address) {
     // For testing/debugging, return dummy coordinates if the API fails
     // This ensures the map will always show something
     const dummyCoordinates = {
+      'calapan': { lat: 13.4105, lng: 121.1817 },
+      'oriental mindoro': { lat: 13.0565, lng: 121.4069 },
       'manila': { lat: 14.5995, lng: 120.9842 },
       'quezon city': { lat: 14.6760, lng: 121.0437 },
       'makati': { lat: 14.5547, lng: 121.0244 },
@@ -24,21 +26,21 @@ export async function geocodeAddress(address) {
     
     // Try the API first
     try {
-      const response = await fetch(`https://maps.gomaps.pro/maps/api/geocode/json?address=oriental mindoro&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=en&key=AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP`);
+      const response = await fetch(`https://maps.gomaps.pro/maps/api/geocode/json?address=${encodeURIComponent(address)}&bounds=<string>&bounds=<string>&components=<string>|<string>&latlng=<string>&location_type=<string>|<string>&place_id=<string>&result_type=<string>|<string>&language=en&region=ph&key=AlzaSypHQrVTDZZWKmav1xYOwSvj1fsiPf2TwRP`);
       const data = await response.json();
       
       console.log('Geocoding API response:', data);
       
       if (data.results && data.results.length > 0) {
-        const location = data.results[0].geometry.location
+        const location = data.results[0].geometry.location;
         return {
           lat: location.lat,
-          lng: location.lng,
-        }
+          lng: location.lng
+        };
       }
     } catch (apiError) {
-      console.error("Geocoding API error:", apiError)
-      // Fall through to default coordinates
+      console.error('Geocoding API error:', apiError);
+      // Fall through to dummy coordinates
     }
     
     // If API fails, try to match with dummy coordinates
@@ -50,13 +52,13 @@ export async function geocodeAddress(address) {
       }
     }
     
-    // Default to Manila if no match
-    console.log('Using default Manila coordinates');
-    return { lat: 14.5995, lng: 120.9842 };
+    // Default to Calapan City, Oriental Mindoro if no match
+    console.log('Using default Calapan City, Oriental Mindoro coordinates');
+    return { lat: 13.4105, lng: 121.1817 };
   } catch (error) {
     console.error('Geocoding error:', error);
-    // Default to Manila
-    return { lat: 14.5995, lng: 120.9842 };
+    // Default to Calapan City, Oriental Mindoro
+    return { lat: 13.4105, lng: 121.1817 };
   }
 }
 
@@ -71,19 +73,19 @@ export async function geocodeAddress(address) {
 export async function calculateDistance(lat1, lng1, lat2, lng2) {
   try {
     const response = await fetch(
-      `https://maps.gomaps.pro/maps/api/distancematrix/json?origins=${lat1},${lng1}&destinations=${lat2},${lng2}&key=${GOMAPS_API_KEY}`,
-    )
-    const data = await response.json()
-
+      `https://maps.gomaps.pro/maps/api/distancematrix/json?origins=${lat1},${lng1}&destinations=${lat2},${lng2}&key=${GOMAPS_API_KEY}`
+    );
+    const data = await response.json();
+    
     if (data.rows && data.rows[0].elements && data.rows[0].elements[0].distance) {
-      return data.rows[0].elements[0].distance.value / 1000 // Convert meters to kilometers
+      return data.rows[0].elements[0].distance.value / 1000; // Convert meters to kilometers
     }
-
+    
     // Fallback to direct calculation if API fails
-    return getDirectDistance(lat1, lng1, lat2, lng2)
+    return getDirectDistance(lat1, lng1, lat2, lng2);
   } catch (error) {
-    console.error("Distance calculation error:", error)
-    return getDirectDistance(lat1, lng1, lat2, lng2)
+    console.error('Distance calculation error:', error);
+    return getDirectDistance(lat1, lng1, lat2, lng2);
   }
 }
 
@@ -96,17 +98,17 @@ export async function calculateDistance(lat1, lng1, lat2, lng2) {
  * @returns {number} - Distance in kilometers
  */
 function getDirectDistance(lat1, lng1, lat2, lng2) {
-  const R = 6371 // Radius of the earth in km
-  const dLat = deg2rad(lat2 - lat1)
-  const dLng = deg2rad(lng2 - lng1)
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLng = deg2rad(lng2 - lng1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-  const distance = R * c // Distance in km
-  return distance
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in km
+  return distance;
 }
 
 function deg2rad(deg) {
-  return deg * (Math.PI / 180)
+  return deg * (Math.PI / 180);
 }
