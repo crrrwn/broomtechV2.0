@@ -93,11 +93,12 @@
                       'bg-green-100 text-green-800 border-green-200': order.status === 'completed',
                       'bg-red-100 text-red-800 border-red-200': order.status === 'cancelled',
                       'bg-blue-100 text-blue-800 border-blue-200': order.status === 'in_progress' || order.status === 'assigned',
-                      'bg-yellow-100 text-yellow-800 border-yellow-200': order.status === 'pending'
+                      'bg-yellow-100 text-yellow-800 border-yellow-200': order.status === 'pending' && (order.isPaid || order.paymentMethod === 'cash'),
+                      'bg-orange-100 text-orange-800 border-orange-200': order.status === 'pending' && !order.isPaid && order.paymentMethod !== 'cash'
                     }"
                     class="ml-3 px-3 py-1 text-xs font-semibold rounded-full border"
                   >
-                    {{ formatStatus(order.status) }}
+                    {{ order.status === 'pending' && !order.isPaid && order.paymentMethod !== 'cash' ? 'Pending Payment' : formatStatus(order.status) }}
                   </span>
                 </div>
                 <p class="text-sm text-black mt-1 flex items-center">
@@ -119,6 +120,16 @@
                   Delete
                 </button>
                 <button 
+                  v-if="['pending', 'assigned', 'in_progress'].includes(order.status) && !order.isPaid && order.paymentMethod !== 'cash'"
+                  @click="payNow(order)" 
+                  class="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Pay Now
+                </button>
+                <button 
                   v-if="['pending', 'assigned', 'in_progress'].includes(order.status)"
                   @click="trackOrder(order)" 
                   class="text-sm font-medium text-green-600 hover:text-green-800 flex items-center px-3 py-1.5 rounded-lg hover:bg-green-50 transition-colors duration-200"
@@ -127,6 +138,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                   </svg>
                   Track Order
+                </button>
+                <button 
+                  v-if="order.status === 'pending' && order.paymentMethod === 'cash' && !order.isPaid"
+                  @click="confirmCashOrder(order.id)" 
+                  class="text-sm font-medium text-orange-600 hover:text-orange-800 flex items-center px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Confirm Order
                 </button>
               </div>
             </div>
@@ -261,6 +282,110 @@
         @close="closeTrackingModal"
         @order-cancelled="refreshOrders"
       />
+      
+      <!-- Payment Modal -->
+      <div v-if="showPaymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-200 transform transition-all duration-300 scale-100">
+          <div class="text-center mb-5">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-black mb-2">Complete Your Payment</h3>
+            <p class="text-black mb-6">
+              Please complete your payment for order #{{ selectedOrder?.id.substring(0, 8) }}
+            </p>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600">Payment Method:</span>
+                <span class="font-medium">{{ selectedOrder?.paymentMethod }}</span>
+              </div>
+              <div class="flex justify-between mb-2">
+                <span class="text-gray-600">Amount:</span>
+                <span class="font-medium">₱{{ (selectedOrder?.totalAmount || 0).toFixed(2) }}</span>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+              <h4 class="font-medium text-left mb-2">Payment Instructions:</h4>
+              <p class="text-left text-sm" v-if="paymentInstructions">
+                <strong>Account Name:</strong> {{ paymentInstructions.accountName }}<br>
+                <strong>Account Number:</strong> {{ paymentInstructions.accountNumber }}<br>
+                <strong>Instructions:</strong> {{ paymentInstructions.instructions }}
+              </p>
+            </div>
+            
+            <div class="mb-4">
+              <label class="block text-left text-sm font-medium text-gray-700 mb-2">
+                Upload Payment Proof
+              </label>
+              <input 
+                type="file" 
+                @change="handleFileUpload" 
+                accept="image/*"
+                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+              />
+            </div>
+          </div>
+          <div class="flex justify-center space-x-4">
+            <button 
+              @click="closePaymentModal" 
+              class="px-5 py-2.5 border border-gray-300 rounded-lg text-base font-medium text-black bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="submitPayment" 
+              :disabled="!paymentFile || isSubmitting"
+              class="px-5 py-2.5 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="isSubmitting" class="flex items-center">
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Processing...
+              </span>
+              <span v-else>Submit Payment</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Cash Order Modal -->
+      <div v-if="showConfirmCashModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-200 transform transition-all duration-300 scale-100">
+          <div class="text-center mb-5">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-black mb-2">Confirm Cash on Delivery</h3>
+            <p class="text-black mb-6">
+              Are you sure you want to confirm this order? You will pay in cash when your order is delivered.
+            </p>
+          </div>
+          <div class="flex justify-center space-x-4">
+            <button 
+              @click="showConfirmCashModal = false" 
+              class="px-5 py-2.5 border border-gray-300 rounded-lg text-base font-medium text-black bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+            >
+              Cancel
+            </button>
+            <button 
+              @click="processCashOrder" 
+              :disabled="isSubmitting"
+              class="px-5 py-2.5 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span v-if="isSubmitting">Processing...</span>
+              <span v-else>Confirm</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -268,11 +393,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import { useAuthStore } from '../../stores/auth';
 import { useBookingStore } from '../../stores/booking';
 import TrackingModal from '../../components/tracking/TrackingModal.vue';
+import { getPaymentInstructions, uploadPaymentProofLocal } from '../../utils/payment';
+import { sendEmailNotification } from '../../utils/email';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -288,6 +415,12 @@ const showDeleteModal = ref(false);
 const orderToDelete = ref(null);
 const showTrackingModal = ref(false);
 const selectedOrder = ref(null);
+const showPaymentModal = ref(false);
+const showConfirmCashModal = ref(false);
+const paymentFile = ref(null);
+const isSubmitting = ref(false);
+const paymentInstructions = ref(null);
+const orderToConfirm = ref(null);
 
 // Fetch orders
 const fetchOrders = async () => {
@@ -315,7 +448,8 @@ const fetchOrders = async () => {
         // Ensure numerical values
         amount: Number(data.amount) || 0,
         additionalFees: Number(data.additionalFees) || 0,
-        totalAmount: Number(data.totalAmount) || 0
+        totalAmount: Number(data.totalAmount) || 0,
+        isPaid: data.isPaid || false // Ensure isPaid is a boolean
       });
     });
     
@@ -409,6 +543,14 @@ const formatDate = (timestamp) => {
 const formatStatus = (status) => {
   if (!status) return 'Unknown';
   
+  // Show "Pending Payment" for pending orders that are not paid and not cash on delivery
+  if (status === 'pending') {
+    const order = orders.value.find(o => o.status === status);
+    if (order && !order.isPaid && order.paymentMethod !== 'cash') {
+      return 'Pending Payment';
+    }
+  }
+  
   return status
     .replace('_', ' ')
     .split(' ')
@@ -466,6 +608,169 @@ const refreshOrders = () => {
   fetchOrders();
 };
 
+const payNow = (order) => {
+  selectedOrder.value = order;
+  paymentInstructions.value = getPaymentInstructions(order.paymentMethod);
+  showPaymentModal.value = true;
+};
+
+const closePaymentModal = () => {
+  showPaymentModal.value = false;
+  selectedOrder.value = null;
+  paymentFile.value = null;
+};
+
+const handleFileUpload = (event) => {
+  paymentFile.value = event.target.files[0];
+};
+
+const submitPayment = async () => {
+  if (!paymentFile.value || !selectedOrder.value) return;
+  
+  try {
+    isSubmitting.value = true;
+    console.log("Starting payment submission process");
+    
+    // Upload payment proof using the local method instead of Firebase Storage
+    console.log("Processing payment proof file:", paymentFile.value.name);
+    const localPath = await uploadPaymentProofLocal(selectedOrder.value.id, paymentFile.value);
+    
+    console.log("File processed successfully, path:", localPath);
+    
+    if (!localPath) {
+      throw new Error("Failed to process payment proof");
+    }
+    
+    // Update order with payment proof path
+    console.log("Updating order payment status in Firestore");
+    const orderRef = doc(db, "bookings", selectedOrder.value.id);
+    await updateDoc(orderRef, {
+      proofOfPayment: localPath,
+      isPaid: true,
+      paidAt: serverTimestamp()
+    });
+    
+    console.log("Order payment status updated successfully");
+    
+    // Send email notification
+    console.log("Sending confirmation email");
+    await sendOrderConfirmationEmail(selectedOrder.value);
+    
+    console.log("Payment process completed successfully");
+    
+    // Close modal and refresh orders
+    closePaymentModal();
+    refreshOrders();
+    
+    // Show success message
+    if (window.$notification) {
+      window.$notification.success('Payment Submitted', 'Your payment proof has been uploaded successfully');
+    }
+  } catch (error) {
+    console.error("Error submitting payment:", error);
+    if (window.$notification) {
+      window.$notification.error({
+        title: 'Error',
+        message: 'Failed to upload payment proof: ' + error.message
+      });
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+const confirmCashOrder = (orderId) => {
+  orderToConfirm.value = orderId;
+  showConfirmCashModal.value = true;
+};
+
+const processCashOrder = async () => {
+  if (!orderToConfirm.value) return;
+  
+  try {
+    isSubmitting.value = true;
+    
+    // Get the order
+    const orderToProcess = orders.value.find(order => order.id === orderToConfirm.value);
+    
+    if (!orderToProcess) {
+      throw new Error("Order not found");
+    }
+    
+    // Update order status - automatically set to assigned for COD orders
+    const orderRef = doc(db, "bookings", orderToConfirm.value);
+    await updateDoc(orderRef, {
+      status: 'assigned', // Auto-accept by setting to assigned instead of confirmed
+      confirmedAt: serverTimestamp(),
+      isPaid: true, // Mark as paid since it's cash on delivery
+      paidAt: serverTimestamp()
+    });
+    
+    // Send email notification
+    await sendOrderConfirmationEmail(orderToProcess);
+    
+    // Close modal and refresh orders
+    showConfirmCashModal.value = false;
+    orderToConfirm.value = null;
+    refreshOrders();
+    
+    // Show success message
+    if (window.$notification) {
+      window.$notification.success({
+        title: 'Order Accepted',
+        message: 'Your order has been automatically accepted and assigned'
+      });
+    }
+  } catch (error) {
+    console.error("Error confirming order:", error);
+    if (window.$notification) {
+      window.$notification.error({
+        title: 'Error',
+        message: 'Failed to confirm order: ' + error.message
+      });
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+const sendOrderConfirmationEmail = async (order) => {
+  try {
+    if (!authStore.user || !authStore.user.email) {
+      console.error("No user email found");
+      return;
+    }
+    
+    // Prepare email data
+    const emailData = {
+      to: authStore.user.email,
+      subject: `Your Order #${order.id.substring(0, 8)} ${order.isPaid ? 'Payment Confirmation' : 'has been placed'}`,
+      template: 'order-confirmation',
+      data: {
+        orderNumber: order.id.substring(0, 8),
+        customerName: authStore.user.displayName || 'Valued Customer',
+        service: order.service,
+        pickupLocation: order.pickupLocation,
+        dropLocation: order.dropLocation,
+        paymentMethod: order.paymentMethod,
+        subtotal: order.amount || 0,
+        deliveryFee: order.additionalFees || 0,
+        total: order.totalAmount || 0,
+        isPaid: order.isPaid,
+        paymentProof: order.proofOfPayment,
+        date: new Date().toLocaleString()
+      }
+    };
+    
+    // Send email notification
+    await sendEmailNotification(emailData);
+    
+    console.log("Order confirmation email sent successfully");
+  } catch (error) {
+    console.error("Error sending order confirmation email:", error);
+  }
+};
+
 onMounted(async () => {
   // Wait for auth to be initialized
   if (!authStore.user) {
@@ -516,3 +821,4 @@ watch(() => authStore.user, (newUser) => {
   transform: translateY(-4px);
 }
 </style>
+

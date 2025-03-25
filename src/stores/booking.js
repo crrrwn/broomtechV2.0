@@ -233,6 +233,36 @@ export const useBookingStore = defineStore("booking", {
         throw error
       }
     },
+
+    async confirmBooking(id) {
+      this.loading = true
+      this.error = null
+
+      try {
+        await updateDoc(doc(db, "bookings", id), {
+          status: "confirmed",
+          confirmedAt: serverTimestamp(),
+        })
+
+        // Update local booking
+        if (this.currentBooking && this.currentBooking.id === id) {
+          this.currentBooking.status = "confirmed"
+        }
+
+        // Update bookings list
+        const index = this.bookings.findIndex((booking) => booking.id === id)
+        if (index !== -1) {
+          this.bookings[index].status = "confirmed"
+        }
+
+        this.loading = false
+        return true
+      } catch (error) {
+        this.loading = false
+        this.error = error.message
+        throw error
+      }
+    },
   },
 })
 
