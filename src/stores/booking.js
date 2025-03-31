@@ -76,6 +76,9 @@ export const useBookingStore = defineStore("booking", {
           ...newBooking.data(),
         }
 
+        // Refresh the bookings list
+        await this.getUserBookings()
+
         this.loading = false
         return this.currentBooking
       } catch (error) {
@@ -171,6 +174,13 @@ export const useBookingStore = defineStore("booking", {
           cancelReason: reason,
           cancelledAt: serverTimestamp(),
         })
+
+        // Update local state
+        const index = this.bookings.findIndex((booking) => booking.id === bookingId)
+        if (index !== -1) {
+          this.bookings[index].status = "cancelled"
+          this.bookings[index].cancelReason = reason
+        }
 
         return true
       } catch (error) {

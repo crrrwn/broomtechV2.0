@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from './stores/auth';
 import Navbar from './components/layout/Navbar.vue';
@@ -36,6 +36,13 @@ export default {
   setup() {
     const route = useRoute();
     const authStore = useAuthStore();
+    const isInitialized = ref(false);
+
+    // Initialize auth on app load
+    onMounted(async () => {
+      await authStore.initAuth();
+      isInitialized.value = true;
+    });
 
     // Hide navbar and footer on auth pages
     const showNavbar = computed(() => {
@@ -61,7 +68,8 @@ export default {
       showNavbar,
       showFooter,
       showChatSupport,
-      isAdmin
+      isAdmin,
+      isInitialized
     };
   }
 }
@@ -163,3 +171,4 @@ body {
   max-width: 1280px;
 }
 </style>
+

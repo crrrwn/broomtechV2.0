@@ -8,10 +8,15 @@ import {
   sendEmailVerification,
 } from "firebase/auth"
 import { doc, getDoc, setDoc } from "firebase/firestore"
+import { onAuthStateChanged } from "firebase/auth"
+import { watch } from "vue"
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
+    loading: false,
+    error: null,
+    authInitialized: false,
     userRole: null,
     userProfile: null,
     isLoading: true,
@@ -134,35 +139,55 @@ export const useAuthStore = defineStore("auth", {
       this.isLoading = true
 
       return new Promise((resolve) => {
-        const unsubscribe = auth.onAuthStateChanged(async (user) => {
-          if (user) {
-            try {
-              const userDoc = await getDoc(doc(db, "users", user.uid))
+        // Check if there's already a user in Firebase Auth
+        const currentUser = auth.currentUser
 
-              if (userDoc.exists()) {
-                const userData = userDoc.data()
-                this.user = {
-                  id: user.uid,
-                  email: user.email,
-                  emailVerified: user.emailVerified,
-                  ...userData,
-                }
-                this.userRole = userData.role || "user"
-                this.userProfile = userData
-              }
-            } catch (error) {
-              console.error("Error in initAuth:", error)
+        if (currentUser) {
+          // User is already authenticated in Firebase, get their data
+          this.fetchUserData(currentUser).then(() => {
+            this.isLoading = false
+            resolve(this.user)
+          })
+        } else {
+          // Wait for auth state to be determined
+          const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            if (user) {
+              await this.fetchUserData(user)
+            } else {
               this.clearUser()
             }
-          } else {
-            this.clearUser()
-          }
 
-          this.isLoading = false
-          resolve(this.user)
-          unsubscribe()
-        })
+            this.isLoading = false
+            resolve(this.user)
+            unsubscribe()
+          })
+        }
       })
+    },
+
+    // Add this helper method to fetch user data
+    async fetchUserData(user) {
+      try {
+        const userDoc = await getDoc(doc(db, "users", user.uid))
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...userData,
+          }
+          this.userRole = userData.role || "user"
+          this.userProfile = userData
+        } else {
+          console.warn("User document not found in Firestore")
+          this.clearUser()
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+        this.clearUser()
+      }
     },
 
     setUser(userData) {
@@ -208,5 +233,59 @@ export const useAuthStore = defineStore("auth", {
         throw error
       }
     },
+
+    // Add this method to ensure user is initialized
+    async ensureUserInitialized() {
+      if (this.user) return this.user
+
+      // Wait for auth state to be determined
+      if (this.authInitialized === false) {
+        await new Promise((resolve) => {
+          const unwatch = watch(
+            () => this.authInitialized,
+            (initialized) => {
+              if (initialized) {
+                unwatch()
+                resolve()
+              }
+            },
+          )
+
+          // Set a timeout in case auth never initializes
+          setTimeout(() => {
+            unwatch()
+            resolve()
+          }, 5000)
+        })
+      }
+
+      return this.user
+    },
+
+    // Find the init method and make sure it sets authInitialized
+    async init() {
+      this.loading = true
+
+      try {
+        // Set up auth state observer
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            // User is signed in
+            await this.fetchUserData(user.uid)
+          } else {
+            // User is signed out
+            this.user = null
+          }
+          this.authInitialized = true
+          this.loading = false
+        })
+      } catch (error) {
+        console.error("Error initializing auth:", error)
+        this.error = error.message
+        this.authInitialized = true
+        this.loading = false
+      }
+    },
   },
 })
+

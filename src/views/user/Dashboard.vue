@@ -236,12 +236,14 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import { useBookingStore } from '../../stores/booking';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import TrackingModal from '../../components/tracking/TrackingModal.vue';
+import { useRouter } from 'vue-router';
 
 const authStore = useAuthStore();
 const bookingStore = useBookingStore();
+const router = useRouter();
 
 const loading = ref(true);
 const recentOrders = ref([]);
@@ -307,45 +309,15 @@ const handleOrderCancelled = () => {
   fetchDashboardData();
 };
 
-const fetchDashboardData = async () => {
-  loading.value = true;
-
+// Use the booking store to fetch user bookings
+const fetchBookingsFromStore = async () => {
   try {
-    if (!authStore.user) {
-      console.error('No authenticated user found');
-      throw new Error('User not authenticated');
-    }
+    console.log('Fetching bookings from store...');
+    await bookingStore.getUserBookings();
     
-    console.log('Fetching bookings for user:', authStore.user.uid);
-    
-    // Fetch orders without orderBy (temporary workaround until index is created)
-    const q = query(
-      collection(db, 'bookings'),
-      where('userId', '==', authStore.user.uid)
-    );
-    
-    const querySnapshot = await getDocs(q);
-    console.log('Fetched bookings:', querySnapshot.size);
-    
-    // Sort the results in memory instead of using orderBy
-    const allOrders = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        // Ensure numerical values
-        amount: Number(data.amount) || 0,
-        additionalFees: Number(data.additionalFees) || 0,
-        totalAmount: Number(data.totalAmount) || 0
-      };
-    });
-    
-    // Sort by createdAt in descending order
-    allOrders.sort((a, b) => {
-      const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-      const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-      return dateB - dateA;
-    });
+    // Get the bookings from the store
+    const allOrders = bookingStore.bookings;
+    console.log('Fetched bookings from store:', allOrders.length);
     
     // Take only the 5 most recent orders
     recentOrders.value = allOrders.slice(0, 5);
@@ -362,37 +334,119 @@ const fetchDashboardData = async () => {
     };
     
     console.log('Updated stats:', stats.value);
+    loading.value = false;
+  } catch (error) {
+    console.error('Error fetching bookings from store:', error);
+    loading.value = false;
+  }
+};
+
+// Fetch data directly from Firestore
+const fetchDashboardData = async () => {
+  loading.value = true;
+
+  try {
+    // Check if user is authenticated
+    if (!authStore.user || !authStore.user.uid) {
+      console.log('No authenticated user, showing empty dashboard');
+      // Instead of showing an error, just show empty data
+      stats.value = {
+        totalOrders: 0,
+        activeOrders: 0,
+        totalSpent: 0
+      };
+      recentOrders.value = [];
+      loading.value = false;
+      return;
+    }
+    
+    console.log('Fetching bookings for user:', authStore.user.uid);
+    
+    // Fetch orders without orderBy (temporary workaround until index is created)
+    const q = query(
+      collection(db, 'bookings'),
+      where('userId', '==', authStore.user.uid)
+    );
+    
+    // Set up a real-time listener for bookings
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      console.log('Fetched bookings:', querySnapshot.size);
+      
+      // Sort the results in memory instead of using orderBy
+      const allOrders = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Ensure numerical values
+          amount: Number(data.amount) || 0,
+          additionalFees: Number(data.additionalFees) || 0,
+          totalAmount: Number(data.totalAmount) || 0
+        };
+      });
+      
+      // Sort by createdAt in descending order
+      allOrders.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        return dateB - dateA;
+      });
+      
+      // Take only the 5 most recent orders
+      recentOrders.value = allOrders.slice(0, 5);
+      
+      // Calculate stats
+      stats.value = {
+        totalOrders: allOrders.length,
+        activeOrders: allOrders.filter(booking => 
+          ['pending', 'assigned', 'in_progress'].includes(booking.status)
+        ).length,
+        totalSpent: allOrders
+          .filter(booking => booking.status === 'completed')
+          .reduce((total, booking) => total + (Number(booking.totalAmount) || 0), 0)
+      };
+      
+      console.log('Updated stats:', stats.value);
+      loading.value = false;
+    }, (error) => {
+      console.error('Error fetching dashboard data:', error);
+      loading.value = false;
+    });
+    
+    // Clean up the listener when component is unmounted
+    onUnmounted(() => {
+      unsubscribe();
+    });
     
   } catch (error) {
-    console.error('Error fetching dashboard data:', error);
-    if (window.$notification) {
-      window.$notification.error({
-        title: 'Error',
-        message: 'Failed to load dashboard data: ' + error.message
-      });
-    }
-  } finally {
+    console.error('Error setting up dashboard data listener:', error);
     loading.value = false;
   }
 };
 
 onMounted(async () => {
-  // Wait for auth to be initialized
-  if (!authStore.user) {
-    console.log('Waiting for auth to initialize...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-  
+  // Try to use the booking store first
   if (authStore.user) {
-    console.log('Auth initialized, fetching dashboard data...');
-    await fetchDashboardData();
+    console.log('User already authenticated, fetching bookings...');
+    fetchBookingsFromStore();
   } else {
-    console.error('Still no authenticated user after waiting');
-    if (window.$notification) {
-      window.$notification.error({
-        title: 'Error',
-        message: 'Please log in to view your dashboard'
-      });
+    console.log('Waiting for auth to initialize...');
+    
+    // Set a maximum wait time
+    const maxWaitTime = 5000; // 5 seconds
+    const startTime = Date.now();
+    
+    // Wait for auth to initialize or timeout
+    while (!authStore.user && (Date.now() - startTime) < maxWaitTime) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    if (authStore.user) {
+      console.log('Auth initialized, fetching bookings...');
+      fetchBookingsFromStore();
+    } else {
+      console.log('Auth timeout, showing empty dashboard');
+      loading.value = false;
     }
   }
 });
@@ -401,7 +455,7 @@ onMounted(async () => {
 watch(() => authStore.user, (newUser) => {
   if (newUser) {
     console.log('Auth state changed, refreshing dashboard...');
-    fetchDashboardData();
+    fetchBookingsFromStore();
   }
 });
 </script>
@@ -439,3 +493,4 @@ watch(() => authStore.user, (newUser) => {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>
+

@@ -190,6 +190,12 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiredRole = to.meta.role
 
+  // Wait for auth initialization if it's still loading
+  if (authStore.isLoading) {
+    console.log("Auth is still loading, waiting for initialization...")
+    await authStore.initAuth()
+  }
+
   console.log("Navigation guard - Current user role:", authStore.userRole)
   console.log("Navigation guard - Required role:", requiredRole)
   console.log("Navigation guard - Requires auth:", requiresAuth)
