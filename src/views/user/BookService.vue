@@ -987,7 +987,7 @@
               <div class="bg-gradient-to-br from-green-50 to-white p-8 rounded-xl mb-8 border border-green-100 shadow-sm">
                 <h3 class="text-xl font-bold text-green-900 mb-6 flex items-center">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 013 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L7 4.323V3a1 1 0 011-1z" clip-rule="evenodd" />
                   </svg>
                   Order Summary
                 </h3>
@@ -1144,463 +1144,472 @@
       </div>
     </div>
   </div>
-  </template>
+</template>
+
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '../../stores/auth';
+import { useBookingStore } from '../../stores/booking';
+
+const router = useRouter();
+const authStore = useAuthStore();
+const bookingStore = useBookingStore();
+
+const loading = ref(false);
+const submitting = ref(false);
+const currentStep = ref(1);
+const selectedService = ref(null);
+const createdBookingId = ref(null);
+const errors = reactive({});
+
+const bookingData = reactive({
+  service: '',
+  restaurant: '',
+  store: '',
+  biller: '',
+  pickupLocation: '',
+  dropLocation: '',
+  details: '',
+  recipientName: '',
+  recipientContact: '',
+  paymentMethod: 'cash',
+  amount: 0,
+  weather: 'normal', // normal, rainy, stormy
+  additionalFees: 0,
+  totalAmount: 0
+});
+
+const services = ref([
+  {
+    id: 'food_delivery',
+    name: 'FOOD DELIVERY',
+    description: 'Get your favorite food delivered to your doorstep.',
+    icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
+    baseRate: 55
+  },
+  {
+    id: 'pabili_service',
+    name: 'PABILI SERVICE',
+    description: 'We can buy items for you and deliver them to your location.',
+    icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+    baseRate: 50
+  },
+  {
+    id: 'pay_bills',
+    name: 'PAY BILLS',
+    description: 'Save time by having someone pay your bills for you.',
+    icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+    baseRate: 60
+  },
+  {
+    id: 'pickup_drop',
+    name: 'PICKUP & DROP',
+    description: 'We can pick up and deliver parcels or items for you.',
+    icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
+    baseRate: 70
+  },
+  {
+    id: 'gifts_delivery',
+    name: 'SURPRISE / GIFTS DELIVERY',
+    description: 'Send gifts and surprises to your loved ones.',
+    icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
+    baseRate: 65
+  },
+  {
+    id: 'remittances',
+    name: 'REMITTANCES / PADALA MONEY',
+    description: 'Send money to your loved ones through our secure service.',
+    icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
+    baseRate: 80
+  },
+  {
+    id: 'groceries',
+    name: 'GROCERIES / SHOPPING',
+    description: 'Let us do your grocery shopping for you.',
+    icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
+    baseRate: 100
+  },
+  {
+    id: 'medicines',
+    name: 'MEDICINES / DRUGSTORE',
+    description: 'Need medicine but can\'t leave home? We can help.',
+    icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
+    baseRate: 75
+  }
+]);
+
+const paymentMethods = ref([
+  { id: 'cash', name: 'Cash on Delivery' },
+  { id: 'gcash', name: 'GCash' },
+  { id: 'paymaya', name: 'PayMaya' },
+  { id: 'gotyme', name: 'GoTyme Bank' }
+]);
+
+const baseRate = computed(() => {
+  return selectedService.value ? selectedService.value.baseRate : 0;
+});
+
+const weatherFee = computed(() => {
+  // Add 10 PHP for bad weather
+  return bookingData.weather === 'rainy' ? 10 : 
+         bookingData.weather === 'stormy' ? 20 : 0;
+});
+
+const distanceFee = computed(() => {
+  // Simplified distance fee calculation
+  // In a real app, this would use actual distance calculation
+  return 15; // Placeholder value
+});
+
+const totalFee = computed(() => {
+  return baseRate.value + weatherFee.value + distanceFee.value;
+});
+
+const hasErrors = computed(() => {
+  return Object.values(errors).some(error => !!error);
+});
+
+// Validation rules
+const validateField = (field) => {
+  errors[field] = '';
   
-  <script setup>
-  import { ref, reactive, computed } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useAuthStore } from '../../stores/auth';
-  import { useBookingStore } from '../../stores/booking';
-  
-  const router = useRouter();
-  const authStore = useAuthStore();
-  const bookingStore = useBookingStore();
-  
-  const loading = ref(false);
-  const submitting = ref(false);
-  const currentStep = ref(1);
-  const selectedService = ref(null);
-  const createdBookingId = ref(null);
-  const errors = reactive({});
-  
-  const bookingData = reactive({
-    service: '',
-    restaurant: '',
-    store: '',
-    biller: '',
-    pickupLocation: '',
-    dropLocation: '',
-    details: '',
-    recipientName: '',
-    recipientContact: '',
-    paymentMethod: 'cash',
-    amount: 0,
-    weather: 'normal', // normal, rainy, stormy
-    additionalFees: 0,
-    totalAmount: 0
-  });
-  
-  const services = ref([
-    {
-      id: 'food_delivery',
-      name: 'FOOD DELIVERY',
-      description: 'Get your favorite food delivered to your doorstep.',
-      icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
-      baseRate: 55
-    },
-    {
-      id: 'pabili_service',
-      name: 'PABILI SERVICE',
-      description: 'We can buy items for you and deliver them to your location.',
-      icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
-      baseRate: 50
-    },
-    {
-      id: 'pay_bills',
-      name: 'PAY BILLS',
-      description: 'Save time by having someone pay your bills for you.',
-      icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
-      baseRate: 60
-    },
-    {
-      id: 'pickup_drop',
-      name: 'PICKUP & DROP',
-      description: 'We can pick up and deliver parcels or items for you.',
-      icon: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4',
-      baseRate: 70
-    },
-    {
-      id: 'gifts_delivery',
-      name: 'SURPRISE / GIFTS DELIVERY',
-      description: 'Send gifts and surprises to your loved ones.',
-      icon: 'M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7',
-      baseRate: 65
-    },
-    {
-      id: 'remittances',
-      name: 'REMITTANCES / PADALA MONEY',
-      description: 'Send money to your loved ones through our secure service.',
-      icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z',
-      baseRate: 80
-    },
-    {
-      id: 'groceries',
-      name: 'GROCERIES / SHOPPING',
-      description: 'Let us do your grocery shopping for you.',
-      icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z',
-      baseRate: 100
-    },
-    {
-      id: 'medicines',
-      name: 'MEDICINES / DRUGSTORE',
-      description: 'Need medicine but can\'t leave home? We can help.',
-      icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4',
-      baseRate: 75
-    }
-  ]);
-  
-  const paymentMethods = ref([
-    { id: 'cash', name: 'Cash on Delivery' },
-    { id: 'gcash', name: 'GCash' },
-    { id: 'paymaya', name: 'PayMaya' },
-    { id: 'gotyme', name: 'GoTyme Bank' }
-  ]);
-  
-  const baseRate = computed(() => {
-    return selectedService.value ? selectedService.value.baseRate : 0;
-  });
-  
-  const weatherFee = computed(() => {
-    // Add 10 PHP for bad weather
-    return bookingData.weather === 'rainy' ? 10 : 
-           bookingData.weather === 'stormy' ? 20 : 0;
-  });
-  
-  const distanceFee = computed(() => {
-    // Simplified distance fee calculation
-    // In a real app, this would use actual distance calculation
-    return 15; // Placeholder value
-  });
-  
-  const totalFee = computed(() => {
-    return baseRate.value + weatherFee.value + distanceFee.value;
-  });
-  
-  const hasErrors = computed(() => {
-    return Object.values(errors).some(error => !!error);
-  });
-  
-  // Validation rules
-  const validateField = (field) => {
-    errors[field] = '';
-    
-    switch(field) {
-      case 'restaurant':
-        if (selectedService.value?.id === 'food_delivery' && !bookingData.restaurant.trim()) {
-          errors.restaurant = 'Restaurant name is required';
-        } else if (bookingData.restaurant && bookingData.restaurant.length < 3) {
-          errors.restaurant = 'Restaurant name must be at least 3 characters';
-        }
-        break;
-      
-      case 'store':
-        if (selectedService.value?.id === 'pabili_service' && !bookingData.store.trim()) {
-          errors.store = 'Store name is required';
-        } else if (bookingData.store && bookingData.store.length < 3) {
-          errors.store = 'Store name must be at least 3 characters';
-        }
-        break;
-      
-      case 'biller':
-        if (selectedService.value?.id === 'pay_bills' && !bookingData.biller.trim()) {
-          errors.biller = 'Biller name is required';
-        } else if (bookingData.biller && bookingData.biller.length < 3) {
-          errors.biller = 'Biller name must be at least 3 characters';
-        }
-        break;
-      
-      case 'pickupLocation':
-        if (!bookingData.pickupLocation.trim()) {
-          errors.pickupLocation = 'Pickup location is required';
-        } else if (bookingData.pickupLocation.length < 5) {
-          errors.pickupLocation = 'Please enter a valid pickup location (minimum 5 characters)';
-        }
-        break;
-      
-      case 'dropLocation':
-        if (!bookingData.dropLocation.trim()) {
-          errors.dropLocation = 'Delivery location is required';
-        } else if (bookingData.dropLocation.length < 5) {
-          errors.dropLocation = 'Please enter a valid delivery address (minimum 5 characters)';
-        }
-        break;
-      
-      case 'details':
-        if (!bookingData.details.trim()) {
-          errors.details = 'Details are required';
-        } else if (bookingData.details.length < 10) {
-          errors.details = 'Please provide more detailed information (minimum 10 characters)';
-        }
-        break;
-      
-      case 'recipientName':
-        if (selectedService.value?.id === 'pickup_drop' && !bookingData.recipientName.trim()) {
-          errors.recipientName = 'Recipient name is required';
-        } else if (bookingData.recipientName && bookingData.recipientName.length < 3) {
-          errors.recipientName = 'Recipient name must be at least 3 characters';
-        }
-        break;
-      
-      case 'recipientContact':
-        if (selectedService.value?.id === 'pickup_drop' && !bookingData.recipientContact.trim()) {
-          errors.recipientContact = 'Recipient contact number is required';
-        } else if (bookingData.recipientContact) {
-          const phonePattern = /^(\+?63|0)9\d{9}$/;
-          if (!phonePattern.test(bookingData.recipientContact.replace(/\s/g, ''))) {
-            errors.recipientContact = 'Please enter a valid Philippine phone number (+63/09 format)';
-          }
-        }
-        break;
-      
-      case 'paymentMethod':
-        if (!bookingData.paymentMethod) {
-          errors.paymentMethod = 'Please select a payment method';
-        }
-        break;
-    }
-    
-    return !errors[field];
-  };
-  
-  // Validate all form fields based on the current service type
-  const validateForm = () => {
-    let isValid = true;
-    
-    // Common validation for all services
-    isValid = validateField('pickupLocation') && isValid;
-    isValid = validateField('dropLocation') && isValid;
-    isValid = validateField('details') && isValid;
-    
-    // Service-specific validation
-    if (selectedService.value?.id === 'food_delivery') {
-      isValid = validateField('restaurant') && isValid;
-    }
-    
-    if (selectedService.value?.id === 'pabili_service') {
-      isValid = validateField('store') && isValid;
-    }
-    
-    if (selectedService.value?.id === 'pay_bills') {
-      isValid = validateField('biller') && isValid;
-    }
-    
-    if (selectedService.value?.id === 'pickup_drop') {
-      isValid = validateField('recipientName') && isValid;
-      isValid = validateField('recipientContact') && isValid;
-    }
-    
-    return isValid;
-  };
-  
-  const validatePaymentForm = () => {
-    return validateField('paymentMethod');
-  };
-  
-  // Formats phone number with spaces for better readability
-  const formatPhoneNumber = (event) => {
-    let input = event.target.value.replace(/\D/g, ''); // Remove all non-digits
-    
-    // Format as +63 9XX XXX XXXX or 09XX XXX XXXX
-    if (input.startsWith('63')) {
-      input = '+' + input.substring(0, 2) + ' ' + input.substring(2);
-      if (input.length > 6) {
-        input = input.substring(0, 6) + ' ' + input.substring(6);
+  switch(field) {
+    case 'restaurant':
+      if (selectedService.value?.id === 'food_delivery' && !bookingData.restaurant.trim()) {
+        errors.restaurant = 'Restaurant name is required';
+      } else if (bookingData.restaurant && bookingData.restaurant.length < 3) {
+        errors.restaurant = 'Restaurant name must be at least 3 characters';
       }
-      if (input.length > 10) {
-        input = input.substring(0, 10) + ' ' + input.substring(10);
-      }
-    } else if (input.startsWith('0')) {
-      input = input.substring(0, 2) + ' ' + input.substring(2);
-      if (input.length > 5) {
-        input = input.substring(0, 5) + ' ' + input.substring(5);
-      }
-      if (input.length > 9) {
-        input = input.substring(0, 9) + ' ' + input.substring(9);
-      }
-    }
+      break;
     
-    // Limit to 15 characters total (with spaces and plus)
-    bookingData.recipientContact = input.substring(0, 15);
-  };
+    case 'store':
+      if (selectedService.value?.id === 'pabili_service' && !bookingData.store.trim()) {
+        errors.store = 'Store name is required';
+      } else if (bookingData.store && bookingData.store.length < 3) {
+        errors.store = 'Store name must be at least 3 characters';
+      }
+      break;
+    
+    case 'biller':
+      if (selectedService.value?.id === 'pay_bills' && !bookingData.biller.trim()) {
+        errors.biller = 'Biller name is required';
+      } else if (bookingData.biller && bookingData.biller.length < 3) {
+        errors.biller = 'Biller name must be at least 3 characters';
+      }
+      break;
+    
+    case 'pickupLocation':
+      if (!bookingData.pickupLocation.trim()) {
+        errors.pickupLocation = 'Pickup location is required';
+      } else if (bookingData.pickupLocation.length < 5) {
+        errors.pickupLocation = 'Please enter a valid pickup location (minimum 5 characters)';
+      }
+      break;
+    
+    case 'dropLocation':
+      if (!bookingData.dropLocation.trim()) {
+        errors.dropLocation = 'Delivery location is required';
+      } else if (bookingData.dropLocation.length < 5) {
+        errors.dropLocation = 'Please enter a valid delivery address (minimum 5 characters)';
+      }
+      break;
+    
+    case 'details':
+      if (!bookingData.details.trim()) {
+        errors.details = 'Details are required';
+      } else if (bookingData.details.length < 10) {
+        errors.details = 'Please provide more detailed information (minimum 10 characters)';
+      }
+      break;
+    
+    case 'recipientName':
+      if (selectedService.value?.id === 'pickup_drop' && !bookingData.recipientName.trim()) {
+        errors.recipientName = 'Recipient name is required';
+      } else if (bookingData.recipientName && bookingData.recipientName.length < 3) {
+        errors.recipientName = 'Recipient name must be at least 3 characters';
+      }
+      break;
+    
+    case 'recipientContact':
+      if (selectedService.value?.id === 'pickup_drop' && !bookingData.recipientContact.trim()) {
+        errors.recipientContact = 'Recipient contact number is required';
+      } else if (bookingData.recipientContact) {
+        const phonePattern = /^(\+?63|0)9\d{9}$/;
+        if (!phonePattern.test(bookingData.recipientContact.replace(/\s/g, ''))) {
+          errors.recipientContact = 'Please enter a valid Philippine phone number (+63/09 format)';
+        }
+      }
+      break;
+    
+    case 'paymentMethod':
+      if (!bookingData.paymentMethod) {
+        errors.paymentMethod = 'Please select a payment method';
+      }
+      break;
+  }
   
-  const selectService = (service) => {
-    selectedService.value = service;
-    bookingData.service = service.name;
-  };
+  return !errors[field];
+};
+
+// Validate all form fields based on the current service type
+const validateForm = () => {
+  let isValid = true;
   
-  const selectPaymentMethod = (methodId) => {
-    bookingData.paymentMethod = methodId;
-    validateField('paymentMethod');
-  };
+  // Common validation for all services
+  isValid = validateField('pickupLocation') && isValid;
+  isValid = validateField('dropLocation') && isValid;
+  isValid = validateField('details') && isValid;
   
-  const validateAndProceed = () => {
-    if (validateForm()) {
-      // Calculate fees
-      bookingData.amount = baseRate.value;
-      bookingData.additionalFees = weatherFee.value + distanceFee.value;
-      bookingData.totalAmount = totalFee.value;
-      
-      currentStep.value = 3;
+  // Service-specific validation
+  if (selectedService.value?.id === 'food_delivery') {
+    isValid = validateField('restaurant') && isValid;
+  }
+  
+  if (selectedService.value?.id === 'pabili_service') {
+    isValid = validateField('store') && isValid;
+  }
+  
+  if (selectedService.value?.id === 'pay_bills') {
+    isValid = validateField('biller') && isValid;
+  }
+  
+  if (selectedService.value?.id === 'pickup_drop') {
+    isValid = validateField('recipientName') && isValid;
+    isValid = validateField('recipientContact') && isValid;
+  }
+  
+  return isValid;
+};
+
+const validatePaymentForm = () => {
+  return validateField('paymentMethod');
+};
+
+// Formats phone number with spaces for better readability
+const formatPhoneNumber = (event) => {
+  let input = event.target.value.replace(/\D/g, ''); // Remove all non-digits
+  
+  // Format as +63 9XX XXX XXXX or 09XX XXX XXXX
+  if (input.startsWith('63')) {
+    input = '+' + input.substring(0, 2) + ' ' + input.substring(2);
+    if (input.length > 6) {
+      input = input.substring(0, 6) + ' ' + input.substring(6);
+    }
+    if (input.length > 10) {
+      input = input.substring(0, 10) + ' ' + input.substring(10);
+    }
+  } else if (input.startsWith('0')) {
+    input = input.substring(0, 2) + ' ' + input.substring(2);
+    if (input.length > 5) {
+      input = input.substring(0, 5) + ' ' + input.substring(5);
+    }
+    if (input.length > 9) {
+      input = input.substring(0, 9) + ' ' + input.substring(9);
+    }
+  }
+  
+  // Limit to 15 characters total (with spaces and plus)
+  bookingData.recipientContact = input.substring(0, 15);
+};
+
+const selectService = (service) => {
+  selectedService.value = service;
+  bookingData.service = service.name;
+};
+
+const selectPaymentMethod = (methodId) => {
+  bookingData.paymentMethod = methodId;
+  validateField('paymentMethod');
+};
+
+const validateAndProceed = () => {
+  if (validateForm()) {
+    // Calculate fees
+    bookingData.amount = baseRate.value;
+    bookingData.additionalFees = weatherFee.value + distanceFee.value;
+    bookingData.totalAmount = totalFee.value;
+    
+    currentStep.value = 3;
+  } else {
+    // Show validation errors at the top of the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+const validateAndSubmit = async () => {
+  if (!validatePaymentForm()) {
+    return;
+  }
+  
+  submitting.value = true;
+
+  try {
+    if (!authStore.user) {
+      throw new Error("Please login to create a booking");
+    }
+
+    // Validate required fields again just to be sure
+    if (!bookingData.pickupLocation || !bookingData.dropLocation || !bookingData.details) {
+      throw new Error("Please fill in all required fields");
+    }
+
+    // Create booking in Firestore
+    const booking = await bookingStore.createBooking({
+      service: selectedService.value.name,
+      details: bookingData.details,
+      pickupLocation: bookingData.pickupLocation,
+      dropLocation: bookingData.dropLocation,
+      paymentMethod: bookingData.paymentMethod,
+      amount: bookingData.amount,
+      weather: bookingData.weather,
+      additionalFees: bookingData.additionalFees,
+      totalAmount: bookingData.totalAmount,
+      restaurant: bookingData.restaurant,
+      recipientName: bookingData.recipientName,
+      recipientContact: bookingData.recipientContact,
+    });
+
+    createdBookingId.value = booking.id;
+    currentStep.value = 4;
+
+    window.$notification?.success('Success', 'Your booking has been submitted successfully!');
+  } catch (error) {
+    console.error('Error submitting booking:', error);
+    window.$notification?.error('Error', error.message || 'Failed to submit booking. Please try again.');
+  } finally {
+    submitting.value = false;
+  }
+};
+
+const nextStep = () => {
+  if (currentStep.value === 1 && !selectedService.value) {
+    window.$notification?.error('Error', 'Please select a service');
+    return;
+  }
+
+  currentStep.value += 1;
+};
+
+const resetForm = () => {
+  // Clear all form data
+  selectedService.value = null;
+  Object.keys(bookingData).forEach(key => {
+    if (key === 'weather') {
+      bookingData[key] = 'normal';
+    } else if (key === 'paymentMethod') {
+      bookingData[key] = 'cash';
     } else {
-      // Show validation errors at the top of the form
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      bookingData[key] = '';
     }
-  };
+  });
+  bookingData.amount = 0;
+  bookingData.additionalFees = 0;
+  bookingData.totalAmount = 0;
   
-  const validateAndSubmit = async () => {
-    if (!validatePaymentForm()) {
-      return;
-    }
-    
-    submitting.value = true;
+  // Clear all errors
+  Object.keys(errors).forEach(key => {
+    errors[key] = '';
+  });
   
-    try {
-      if (!authStore.user) {
-        throw new Error("Please login to create a booking");
-      }
-  
-      // Validate required fields again just to be sure
-      if (!bookingData.pickupLocation || !bookingData.dropLocation || !bookingData.details) {
-        throw new Error("Please fill in all required fields");
-      }
-  
-      // Create booking in Firestore
-      const booking = await bookingStore.createBooking({
-        service: selectedService.value.name,
-        details: bookingData.details,
-        pickupLocation: bookingData.pickupLocation,
-        dropLocation: bookingData.dropLocation,
-        paymentMethod: bookingData.paymentMethod,
-        amount: bookingData.amount,
-        weather: bookingData.weather,
-        additionalFees: bookingData.additionalFees,
-        totalAmount: bookingData.totalAmount,
-        restaurant: bookingData.restaurant,
-        recipientName: bookingData.recipientName,
-        recipientContact: bookingData.recipientContact,
-      });
-  
-      createdBookingId.value = booking.id;
-      currentStep.value = 4;
-  
-      window.$notification?.success('Success', 'Your booking has been submitted successfully!');
-    } catch (error) {
-      console.error('Error submitting booking:', error);
-      window.$notification?.error('Error', error.message || 'Failed to submit booking. Please try again.');
-    } finally {
-      submitting.value = false;
-    }
-  };
-  
-  const nextStep = () => {
-    if (currentStep.value === 1 && !selectedService.value) {
-      window.$notification?.error('Error', 'Please select a service');
-      return;
-    }
-  
-    currentStep.value += 1;
-  };
-  
-  const resetForm = () => {
-    // Clear all form data
-    selectedService.value = null;
-    Object.keys(bookingData).forEach(key => {
-      if (key === 'weather') {
-        bookingData[key] = 'normal';
-      } else if (key === 'paymentMethod') {
-        bookingData[key] = 'cash';
-      } else {
-        bookingData[key] = '';
-      }
-    });
-    bookingData.amount = 0;
-    bookingData.additionalFees = 0;
-    bookingData.totalAmount = 0;
-    
-    // Clear all errors
-    Object.keys(errors).forEach(key => {
-      errors[key] = '';
-    });
-    
-    // Reset to first step
-    currentStep.value = 1;
-  };
-  </script>
-  
-  <style scoped>
-  /* Base transitions */
-  .transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
+  // Reset to first step
+  currentStep.value = 1;
+};
+
+// Initialize component
+onMounted(() => {
+  // Check if user is logged in
+  if (!authStore.user) {
+    window.$notification?.warning('Authentication Required', 'Please login to book a service');
+    router.push('/login?redirect=/book-service');
   }
-  
-  /* Transform effects */
-  .transform {
-    transition-property: transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-  }
-  
-  /* Fade-in animation */
-  .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* Form validation shake animation */
-  .input-error {
-    animation: shakeX 0.5s;
-  }
-  
-  @keyframes shakeX {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-  }
-  
-  /* Success animations */
-  .animate-success-appear {
-    opacity: 0;
-    transform: scale(0.9);
-    animation: successAppear 0.6s ease-out forwards;
-  }
-  
-  .delay-100 {
-    animation-delay: 0.1s;
-  }
-  
-  .delay-200 {
-    animation-delay: 0.2s;
-  }
-  
-  @keyframes successAppear {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  
-  /* Button progress animation */
-  .animate-progress {
-    animation: progress 2s linear infinite;
-  }
-  
-  @keyframes progress {
-    0% { width: 0%; }
-    100% { width: 100%; }
-  }
-  
-  /* Pulse animation */
-  .animate-pulse {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-  
-  /* Input focus outline animation */
-  input:focus, textarea:focus {
-    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3);
-    transition: box-shadow 0.2s ease-in-out;
-  }
-  
-  /* Invalid input shake animation */
-  input:invalid:focus, textarea:invalid:focus {
-    animation: shakeX 0.5s;
-  }
-  </style>
+});
+</script>
+
+<style scoped>
+/* Base transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Transform effects */
+.transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Fade-in animation */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form validation shake animation */
+.input-error {
+  animation: shakeX 0.5s;
+}
+
+@keyframes shakeX {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Success animations */
+.animate-success-appear {
+  opacity: 0;
+  transform: scale(0.9);
+  animation: successAppear 0.6s ease-out forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+@keyframes successAppear {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Button progress animation */
+.animate-progress {
+  animation: progress 2s linear infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* Pulse animation */
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Input focus outline animation */
+input:focus, textarea:focus {
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.3);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Invalid input shake animation */
+input:invalid:focus, textarea:invalid:focus {
+  animation: shakeX 0.5s;
+}
+</style>

@@ -270,6 +270,20 @@
                 </div>
               </div>
               
+              <!-- Payment Proof Image -->
+              <div v-if="selectedBooking.proofOfPayment || selectedBooking.paymentProofImage" class="mb-6">
+                <p class="text-sm text-gray-500 mb-2">Payment Proof</p>
+                <div class="border rounded-lg overflow-hidden">
+                  <img 
+                    :src="selectedBooking.paymentProofImage || selectedBooking.proofOfPayment" 
+                    alt="Payment Proof" 
+                    class="w-full h-auto max-h-64 object-contain"
+                    @click="openFullImage(selectedBooking.paymentProofImage || selectedBooking.proofOfPayment)"
+                  />
+                </div>
+                <p class="text-xs text-gray-500 mt-1 text-center">Click on image to view full size</p>
+              </div>
+              
               <div v-if="selectedBooking.driverId" class="mb-6">
                 <p class="text-sm text-gray-500 mb-1">Assigned Driver</p>
                 <div class="flex items-center">
@@ -296,6 +310,27 @@
             Assign Driver
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Full Image Modal -->
+  <div v-if="fullImageUrl" class="fixed inset-0 overflow-y-auto z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="closeFullImage">
+        <div class="absolute inset-0 bg-black opacity-90"></div>
+      </div>
+      
+      <div class="relative max-w-4xl w-full">
+        <button 
+          @click="closeFullImage" 
+          class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img :src="fullImageUrl" alt="Payment Proof" class="w-full h-auto max-h-[80vh] object-contain" />
       </div>
     </div>
   </div>
@@ -401,6 +436,7 @@ import { collection, getDocs, doc, updateDoc, getDoc, query, where, orderBy } fr
 // Booking data
 const bookings = ref([]);
 const selectedBooking = ref(null);
+const fullImageUrl = ref(null);
 
 // Filters
 const searchQuery = ref('');
@@ -419,7 +455,49 @@ const driverSearchQuery = ref('');
 const selectedDriver = ref(null);
 const isAssigning = ref(false);
 
-// Load bookings and drivers
+// List of payment methods that should be automatically marked as paid
+const autoPaymentMethods = ['gcash', 'gotyme', 'paymaya'];
+
+// Add this function to the script section to fetch payment proof directly
+const fetchPaymentProof = async (bookingId) => {
+  try {
+    // Try different possible locations for the payment proof
+    
+    // 1. Check in the bookings collection for proofOfPayment field
+    const bookingRef = doc(db, 'bookings', bookingId);
+    const bookingDoc = await getDoc(bookingRef);
+    
+    if (bookingDoc.exists() && bookingDoc.data().proofOfPayment) {
+      return bookingDoc.data().proofOfPayment;
+    }
+    
+    // 2. Check in a payments collection using the booking ID
+    const paymentRef = doc(db, 'payments', bookingId);
+    const paymentDoc = await getDoc(paymentRef);
+    
+    if (paymentDoc.exists() && paymentDoc.data().imageUrl) {
+      return paymentDoc.data().imageUrl;
+    }
+    
+    // 3. Check if there's a payments subcollection in the booking document
+    const paymentsCollectionRef = collection(db, 'bookings', bookingId, 'payments');
+    const paymentsSnapshot = await getDocs(paymentsCollectionRef);
+    
+    if (!paymentsSnapshot.empty) {
+      const paymentData = paymentsSnapshot.docs[0].data();
+      if (paymentData.imageUrl || paymentData.proofOfPayment) {
+        return paymentData.imageUrl || paymentData.proofOfPayment;
+      }
+    }
+    
+    return null;
+  } catch (error) {
+    console.error('Error fetching payment proof:', error);
+    return null;
+  }
+};
+
+// Modify the onMounted function to check for payment proofs when loading bookings
 onMounted(async () => {
   try {
     // Load bookings
@@ -430,13 +508,33 @@ onMounted(async () => {
     const bookingsSnapshot = await getDocs(bookingsQuery);
     const bookingsData = [];
     
-    bookingsSnapshot.forEach(doc => {
-      bookingsData.push({
+    for (const doc of bookingsSnapshot.docs) {
+      const bookingData = {
         id: doc.id,
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate() || new Date()
-      });
-    });
+      };
+      
+      // Auto-mark payments as paid for specific payment methods
+      if (autoPaymentMethods.includes(bookingData.paymentMethod?.toLowerCase())) {
+        if (bookingData.paymentStatus === 'unpaid' || !bookingData.paymentStatus) {
+          updateBookingPaymentStatus(doc.id);
+          bookingData.paymentStatus = 'paid';
+        }
+      }
+      
+      // If the booking is marked as paid but doesn't have a payment proof image,
+      // try to fetch it (this helps with bookings from OrderHistory.vue)
+      if ((bookingData.paymentStatus === 'paid' || bookingData.isPaid === true) && 
+          !bookingData.paymentProofImage && !bookingData.proofOfPayment) {
+        const proofImage = await fetchPaymentProof(doc.id);
+        if (proofImage) {
+          bookingData.proofOfPayment = proofImage;
+        }
+      }
+      
+      bookingsData.push(bookingData);
+    }
     
     bookings.value = bookingsData;
     
@@ -461,6 +559,18 @@ onMounted(async () => {
     console.error('Error loading data:', error);
   }
 });
+
+// Function to update payment status in Firestore
+const updateBookingPaymentStatus = async (bookingId) => {
+  try {
+    await updateDoc(doc(db, 'bookings', bookingId), {
+      paymentStatus: 'paid',
+      paymentVerifiedAt: new Date()
+    });
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+  }
+};
 
 // Filtered bookings
 const filteredBookings = computed(() => {
@@ -543,6 +653,7 @@ const displayedPages = computed(() => {
     }
     
     // Show dots if current page is less than total - 2
+    
     if (current < total - 2) {
       pages.push('...');
     }
@@ -573,9 +684,82 @@ const nextPage = () => {
   }
 };
 
+// Image handling
+const openFullImage = (imageUrl) => {
+  fullImageUrl.value = imageUrl;
+};
+
+const closeFullImage = () => {
+  fullImageUrl.value = null;
+};
+
 // Booking actions
-const viewBooking = (booking) => {
-  selectedBooking.value = booking;
+const viewBooking = async (booking) => {
+  try {
+    // Create a copy of the booking to avoid modifying the original data directly
+    const bookingCopy = { ...booking };
+    
+    // Check for different ways the payment proof might be stored
+    if (!bookingCopy.paymentProofImage) {
+      // Check for proofOfPayment field (from OrderHistory.vue)
+      if (bookingCopy.proofOfPayment) {
+        // If it's already a URL, use it directly
+        if (typeof bookingCopy.proofOfPayment === 'string' && 
+            (bookingCopy.proofOfPayment.startsWith('http') || 
+             bookingCopy.proofOfPayment.startsWith('data:'))) {
+          bookingCopy.paymentProofImage = bookingCopy.proofOfPayment;
+        } 
+        // If it's a reference to another document
+        else if (typeof bookingCopy.proofOfPayment === 'string') {
+          try {
+            // First try as a direct path in payments collection
+            const paymentRef = doc(db, 'payments', bookingCopy.proofOfPayment);
+            const paymentDoc = await getDoc(paymentRef);
+            
+            if (paymentDoc.exists() && paymentDoc.data().imageUrl) {
+              bookingCopy.paymentProofImage = paymentDoc.data().imageUrl;
+            }
+          } catch (error) {
+            console.error('Error fetching from payments collection:', error);
+            // If that fails, try using the proofOfPayment as a direct path
+            bookingCopy.paymentProofImage = bookingCopy.proofOfPayment;
+          }
+        }
+      }
+      
+      // Check for paymentProofRef field
+      else if (bookingCopy.paymentProofRef) {
+        const paymentRef = doc(db, 'payments', bookingCopy.paymentProofRef);
+        const paymentDoc = await getDoc(paymentRef);
+        
+        if (paymentDoc.exists() && paymentDoc.data().imageUrl) {
+          bookingCopy.paymentProofImage = paymentDoc.data().imageUrl;
+        }
+      }
+      
+      // Check for isPaid and proofOfPayment fields from OrderHistory.vue
+      else if (bookingCopy.isPaid === true && !bookingCopy.paymentProofImage) {
+        // Try to fetch the payment document using the booking ID
+        try {
+          const paymentRef = doc(db, 'payments', bookingCopy.id);
+          const paymentDoc = await getDoc(paymentRef);
+          
+          if (paymentDoc.exists() && paymentDoc.data().imageUrl) {
+            bookingCopy.paymentProofImage = paymentDoc.data().imageUrl;
+          }
+        } catch (error) {
+          console.error('Error fetching payment by booking ID:', error);
+        }
+      }
+    }
+    
+    // Set the selected booking to our modified copy
+    selectedBooking.value = bookingCopy;
+  } catch (error) {
+    console.error('Error fetching payment proof:', error);
+    // Still show the booking even if there's an error fetching the payment proof
+    selectedBooking.value = booking;
+  }
 };
 
 const closeBookingDetail = () => {
@@ -775,4 +959,3 @@ const getPaymentBadgeClass = (status) => {
   }
 };
 </script>
-
