@@ -149,6 +149,18 @@
                   </svg>
                   Confirm Order
                 </button>
+                <!-- New button to view proof of payment -->
+                <button 
+                  v-if="order.proofOfPayment"
+                  @click="viewProofOfPayment(order.proofOfPayment)" 
+                  class="text-sm font-medium text-purple-600 hover:text-purple-800 flex items-center px-3 py-1.5 rounded-lg hover:bg-purple-50 transition-colors duration-200"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  View Payment Proof
+                </button>
               </div>
             </div>
           </div>
@@ -386,6 +398,39 @@
           </div>
         </div>
       </div>
+
+      <!-- Proof of Payment Modal -->
+      <div v-if="showProofOfPaymentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-200 transform transition-all duration-300 scale-100">
+          <div class="text-center mb-5">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-black mb-2">Proof of Payment</h3>
+            <p class="text-black mb-6">
+              Your uploaded payment proof for this order.
+            </p>
+          </div>
+          <div class="flex items-center justify-center p-4 bg-gray-50 rounded-lg mb-4">
+            <img 
+              :src="proofOfPaymentUrl" 
+              alt="Proof of Payment" 
+              class="max-w-full max-h-[300px] object-contain rounded-md"
+            />
+          </div>
+          <div class="flex justify-center">
+            <button 
+              @click="showProofOfPaymentModal = false" 
+              class="px-5 py-2.5 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -394,16 +439,13 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { collection, getDocs, query, where, doc, deleteDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../firebase/config';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+// Fix the import path to match your project structure
+import { auth, db, storage, analytics } from '../../firebase/config';
 import { useAuthStore } from '../../stores/auth';
 import { useBookingStore } from '../../stores/booking';
 import TrackingModal from '../../components/tracking/TrackingModal.vue';
-import { getPaymentInstructions, uploadPaymentProofLocal } from '../../utils/payment';
 import { sendEmailNotification } from '../../utils/email';
-
-const router = useRouter();
-const authStore = useAuthStore();
-const bookingStore = useBookingStore();
 
 // State
 const orders = ref([]);
@@ -421,6 +463,11 @@ const paymentFile = ref(null);
 const isSubmitting = ref(false);
 const paymentInstructions = ref(null);
 const orderToConfirm = ref(null);
+const showProofOfPaymentModal = ref(false);
+const proofOfPaymentUrl = ref('');
+
+// Use authStore from the store
+const authStore = useAuthStore();
 
 // Fetch orders
 const fetchOrders = async () => {
@@ -543,14 +590,6 @@ const formatDate = (timestamp) => {
 const formatStatus = (status) => {
   if (!status) return 'Unknown';
   
-  // Show "Pending Payment" for pending orders that are not paid and not cash on delivery
-  if (status === 'pending') {
-    const order = orders.value.find(o => o.status === status);
-    if (order && !order.isPaid && order.paymentMethod !== 'cash') {
-      return 'Pending Payment';
-    }
-  }
-  
   return status
     .replace('_', ' ')
     .split(' ')
@@ -624,6 +663,49 @@ const handleFileUpload = (event) => {
   paymentFile.value = event.target.files[0];
 };
 
+// Get payment instructions based on payment method
+const getPaymentInstructions = (paymentMethod) => {
+  switch (paymentMethod?.toLowerCase()) {
+    case 'gcash':
+      return {
+        accountName: 'Service Provider',
+        accountNumber: '09123456789',
+        instructions: 'Please send the exact amount to the GCash number provided and upload a screenshot of the payment confirmation.'
+      };
+    case 'bank transfer':
+      return {
+        accountName: 'Service Provider Inc.',
+        accountNumber: '1234-5678-9012-3456',
+        instructions: 'Please transfer the exact amount to the bank account provided and upload a screenshot of the payment confirmation.'
+      };
+    default:
+      return {
+        accountName: 'Service Provider',
+        accountNumber: '09123456789',
+        instructions: 'Please send the payment using your preferred method and upload proof of payment.'
+      };
+  }
+};
+
+// Upload payment proof to Firebase Storage
+const uploadPaymentProof = async (orderId, file) => {
+  try {
+    // Create a reference to the file in Firebase Storage
+    const fileRef = storageRef(storage, `payment-proofs/${orderId}/${file.name}`);
+    
+    // Upload the file
+    const snapshot = await uploadBytes(fileRef, file);
+    
+    // Get the download URL
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    
+    return downloadURL;
+  } catch (error) {
+    console.error("Error uploading payment proof:", error);
+    throw error;
+  }
+};
+
 const submitPayment = async () => {
   if (!paymentFile.value || !selectedOrder.value) return;
   
@@ -631,21 +713,21 @@ const submitPayment = async () => {
     isSubmitting.value = true;
     console.log("Starting payment submission process");
     
-    // Upload payment proof using the local method instead of Firebase Storage
-    console.log("Processing payment proof file:", paymentFile.value.name);
-    const localPath = await uploadPaymentProofLocal(selectedOrder.value.id, paymentFile.value);
+    // Upload payment proof to Firebase Storage
+    console.log("Uploading payment proof file:", paymentFile.value.name);
+    const downloadURL = await uploadPaymentProof(selectedOrder.value.id, paymentFile.value);
     
-    console.log("File processed successfully, path:", localPath);
+    console.log("File uploaded successfully, URL:", downloadURL);
     
-    if (!localPath) {
-      throw new Error("Failed to process payment proof");
+    if (!downloadURL) {
+      throw new Error("Failed to upload payment proof");
     }
     
-    // Update order with payment proof path
+    // Update order with payment proof URL
     console.log("Updating order payment status in Firestore");
     const orderRef = doc(db, "bookings", selectedOrder.value.id);
     await updateDoc(orderRef, {
-      proofOfPayment: localPath,
+      proofOfPayment: downloadURL,
       isPaid: true,
       paidAt: serverTimestamp()
     });
@@ -664,7 +746,10 @@ const submitPayment = async () => {
     
     // Show success message
     if (window.$notification) {
-      window.$notification.success('Payment Submitted', 'Your payment proof has been uploaded successfully');
+      window.$notification.success({
+        title: 'Payment Submitted',
+        message: 'Your payment proof has been uploaded successfully'
+      });
     }
   } catch (error) {
     console.error("Error submitting payment:", error);
@@ -677,6 +762,12 @@ const submitPayment = async () => {
   } finally {
     isSubmitting.value = false;
   }
+};
+
+// View proof of payment
+const viewProofOfPayment = (proofUrl) => {
+  proofOfPaymentUrl.value = proofUrl;
+  showProofOfPaymentModal.value = true;
 };
 
 const confirmCashOrder = (orderId) => {
@@ -821,4 +912,3 @@ watch(() => authStore.user, (newUser) => {
   transform: translateY(-4px);
 }
 </style>
-
