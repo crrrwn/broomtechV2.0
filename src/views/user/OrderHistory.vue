@@ -687,21 +687,41 @@ const getPaymentInstructions = (paymentMethod) => {
   }
 };
 
-// Upload payment proof to Firebase Storage
+// The uploadPaymentProof function needs to be fixed
 const uploadPaymentProof = async (orderId, file) => {
   try {
-    // Create a reference to the file in Firebase Storage
-    const fileRef = storageRef(storage, `payment-proofs/${orderId}/${file.name}`);
+    console.log("Starting upload to Firebase Storage");
     
-    // Upload the file
-    const snapshot = await uploadBytes(fileRef, file);
+    // Create a reference to the file in Firebase Storage with proper path
+    // Make sure the path matches your security rules
+    const fileRef = storageRef(storage, `payment-proofs/${authStore.user.uid}/${orderId}/${file.name}`);
+    
+    // Set proper metadata to ensure correct content type
+    const metadata = {
+      contentType: file.type,
+    };
+    
+    // Upload the file with metadata
+    const snapshot = await uploadBytes(fileRef, file, metadata);
+    console.log("Upload successful:", snapshot);
     
     // Get the download URL
     const downloadURL = await getDownloadURL(snapshot.ref);
+    console.log("Download URL obtained:", downloadURL);
     
     return downloadURL;
   } catch (error) {
     console.error("Error uploading payment proof:", error);
+    
+    // More detailed error handling
+    if (error.code === 'storage/unauthorized') {
+      throw new Error("Permission denied: You don't have permission to upload files. Please contact support.");
+    } else if (error.code === 'storage/canceled') {
+      throw new Error("Upload was canceled");
+    } else if (error.code === 'storage/unknown') {
+      throw new Error("Unknown error occurred during upload");
+    }
+    
     throw error;
   }
 };
@@ -744,20 +764,59 @@ const submitPayment = async () => {
     closePaymentModal();
     refreshOrders();
     
+    // Alternative approach for the success notification in submitPayment function:
     // Show success message
     if (window.$notification) {
-      window.$notification.success({
-        title: 'Payment Submitted',
-        message: 'Your payment proof has been uploaded successfully'
-      });
+      try {
+        window.$notification.success('Payment Submitted', 'Your payment proof has been uploaded successfully');
+      } catch (e) {
+        console.error('Error showing notification:', e);
+        alert('Payment proof uploaded successfully!');
+      }
+    } else {
+      alert('Payment proof uploaded successfully!');
     }
   } catch (error) {
     console.error("Error submitting payment:", error);
+    
+    // Improved error handling with user-friendly messages
+    let errorMessage = 'Failed to upload payment proof';
+
+    if (error.code) {
+      // Handle Firebase specific error codes
+      switch (error.code) {
+        case 'storage/unauthorized':
+          errorMessage = 'Permission denied: You don\'t have access to upload files. Please contact support.';
+          break;
+        case 'storage/canceled':
+          errorMessage = 'Upload was canceled';
+          break;
+        case 'storage/unknown':
+          errorMessage = 'An unknown error occurred during upload';
+          break;
+        case 'storage/quota-exceeded':
+          errorMessage = 'Storage quota exceeded. Please contact support.';
+          break;
+        case 'storage/invalid-format':
+          errorMessage = 'Invalid file format. Please upload an image file.';
+          break;
+        default:
+          errorMessage = 'Error uploading file: ' + (error.message || 'Unknown error');
+          break;
+      }
+    } else if (error.message) {
+      // For non-Firebase errors with message property
+      errorMessage = error.message;
+    }
+
+    // Use notification system if available, otherwise fallback to alert
     if (window.$notification) {
       window.$notification.error({
         title: 'Error',
-        message: 'Failed to upload payment proof: ' + error.message
+        message: errorMessage
       });
+    } else {
+      alert('Error: ' + errorMessage);
     }
   } finally {
     isSubmitting.value = false;
@@ -811,6 +870,8 @@ const processCashOrder = async () => {
         title: 'Order Accepted',
         message: 'Your order has been automatically accepted and assigned'
       });
+    } else {
+      alert('Your order has been accepted and assigned!');
     }
   } catch (error) {
     console.error("Error confirming order:", error);
@@ -819,6 +880,8 @@ const processCashOrder = async () => {
         title: 'Error',
         message: 'Failed to confirm order: ' + error.message
       });
+    } else {
+      alert('Error: Failed to confirm order - ' + error.message);
     }
   } finally {
     isSubmitting.value = false;
@@ -862,30 +925,24 @@ const sendOrderConfirmationEmail = async (order) => {
   }
 };
 
+const isAuthInitialized = ref(false);
+const isMounted = ref(false); // Add a ref to track if the component is mounted
+
 onMounted(async () => {
-  // Wait for auth to be initialized
-  if (!authStore.user) {
-    console.log('Waiting for auth to initialize...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  isMounted.value = true; // Set isMounted to true when the component is mounted
+  // Initialize auth state
+  if (authStore.initializeAuth) {
+    await authStore.initializeAuth();
   }
-  
+  isAuthInitialized.value = true;
   if (authStore.user) {
-    console.log('Auth initialized, fetching orders...');
-    await fetchOrders();
-  } else {
-    console.error('Still no authenticated user after waiting');
-    if (window.$notification) {
-      window.$notification.error({
-        title: 'Error',
-        message: 'Please log in to view your order history'
-      });
-    }
+    fetchOrders();
   }
 });
 
-// Watch for auth changes
+// Watch for auth changes and only fetch orders after auth is initialized and component is mounted
 watch(() => authStore.user, (newUser) => {
-  if (newUser) {
+  if (isAuthInitialized.value && newUser && isMounted.value) {
     console.log('Auth state changed, refreshing orders...');
     fetchOrders();
   }
