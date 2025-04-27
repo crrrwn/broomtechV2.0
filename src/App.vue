@@ -1,14 +1,30 @@
 <template>
   <div class="min-h-screen bg-gray-50">
-    <Navbar v-if="showNavbar" />
-    <main>
+    <!-- Show navbar for non-admin users or when not logged in -->
+    <Navbar v-if="showNavbar && !isAdmin" />
+    
+    <!-- Admin layout with sidebar -->
+    <div v-if="isAdmin" class="admin-layout">
+      <AdminSidebar />
+      <main class="admin-main">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </main>
+    </div>
+    
+    <!-- Regular layout for non-admin users -->
+    <main v-else>
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
     </main>
-    <Footer v-if="showFooter" />
+    
+    <Footer v-if="showFooter && !isAdmin" />
     <Notifications />
     <AIChatSupport v-if="showChatSupport" />
     <AdminNotifications v-if="isAdmin" />
@@ -24,6 +40,7 @@ import Footer from './components/layout/Footer.vue';
 import Notifications from './components/common/Notifications.vue';
 import AIChatSupport from './components/common/AIChatSupport.vue';
 import AdminNotifications from './components/admin/AdminNotifications.vue';
+import AdminSidebar from './components/admin/AdminSidebar.vue';
 
 export default {
   components: {
@@ -31,7 +48,8 @@ export default {
     Footer,
     Notifications,
     AIChatSupport,
-    AdminNotifications
+    AdminNotifications,
+    AdminSidebar
   },
   setup() {
     const route = useRoute();
@@ -84,6 +102,25 @@ export default {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* Admin layout styles */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-main {
+  flex: 1;
+  margin-left: 250px; /* Same as sidebar width */
+  padding: 1.5rem;
+  transition: margin-left 0.3s ease;
+}
+
+@media (max-width: 767px) {
+  .admin-main {
+    margin-left: 0;
+  }
 }
 
 /* Global styles */
@@ -171,4 +208,3 @@ body {
   max-width: 1280px;
 }
 </style>
-
