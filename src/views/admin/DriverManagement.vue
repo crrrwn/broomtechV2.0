@@ -44,6 +44,12 @@
               </div>
               <div class="ml-3">
                 <p class="text-sm text-green-700">{{ createSuccess }}</p>
+                <div v-if="generatedCredentials" class="mt-2 p-3 bg-green-100 rounded-md">
+                  <p class="text-sm font-medium text-green-800">Generated Credentials:</p>
+                  <p class="text-sm text-green-800">Email: {{ generatedCredentials.email }}</p>
+                  <p class="text-sm text-green-800">Password: {{ generatedCredentials.password }}</p>
+                  <p class="text-xs mt-1 text-green-700">Make sure to save or send these credentials to the driver.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -62,14 +68,26 @@
               </div>
               
               <div class="col-span-6 sm:col-span-3">
-                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  v-model="newDriver.email"
-                  required
-                  class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" 
-                />
+                <label for="email" class="block text-sm font-medium text-gray-700">
+                  Email Address
+                  <span class="ml-1 text-xs text-gray-500">(Auto-generated if left empty)</span>
+                </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                  <input 
+                    type="email" 
+                    id="email" 
+                    v-model="newDriver.email"
+                    :placeholder="emailPlaceholder"
+                    class="focus:ring-green-500 focus:border-green-500 flex-1 block w-full rounded-none rounded-l-md sm:text-sm border-gray-300" 
+                  />
+                  <button
+                    type="button"
+                    @click="generateEmail"
+                    class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                  >
+                    Generate
+                  </button>
+                </div>
               </div>
               
               <div class="col-span-6 sm:col-span-3">
@@ -84,31 +102,43 @@
               </div>
               
               <div class="col-span-6 sm:col-span-3">
-                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                  <input 
-                    :type="showPassword ? 'text' : 'password'" 
-                    id="password" 
-                    v-model="newDriver.password"
-                    required
-                    minlength="6"
-                    class="focus:ring-green-500 focus:border-green-500 block w-full pr-10 sm:text-sm border-gray-300 rounded-md" 
-                  />
-                  <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                    <button 
-                      type="button" 
-                      @click="showPassword = !showPassword"
-                      class="text-gray-400 hover:text-gray-500 focus:outline-none"
-                    >
-                      <svg v-if="showPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                      <svg v-else class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
+                <label for="password" class="block text-sm font-medium text-gray-700">
+                  Password
+                  <span class="ml-1 text-xs text-gray-500">(Auto-generated if left empty)</span>
+                </label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                  <div class="relative flex-grow">
+                    <input 
+                      :type="showPassword ? 'text' : 'password'" 
+                      id="password" 
+                      v-model="newDriver.password"
+                      :placeholder="passwordPlaceholder"
+                      minlength="6"
+                      class="focus:ring-green-500 focus:border-green-500 block w-full pr-10 sm:text-sm border-gray-300 rounded-l-md" 
+                    />
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <button 
+                        type="button" 
+                        @click="showPassword = !showPassword"
+                        class="text-gray-400 hover:text-gray-500 focus:outline-none"
+                      >
+                        <svg v-if="showPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                        </svg>
+                        <svg v-else class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
+                  <button
+                    type="button"
+                    @click="generatePassword"
+                    class="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                  >
+                    Generate
+                  </button>
                 </div>
                 <p class="mt-1 text-sm text-gray-500">Password must be at least 6 characters</p>
               </div>
@@ -133,9 +163,6 @@
                 >
                   <option value="">Select vehicle type</option>
                   <option value="motorcycle">Motorcycle</option>
-                  <option value="scooter">Scooter</option>
-                  <option value="bicycle">Bicycle</option>
-                  <option value="car">Car</option>
                 </select>
               </div>
               
@@ -321,7 +348,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, serverTimestamp, query, where } from 'firebase/firestore';
 import { useNotificationStore } from '../../stores/notification';
@@ -341,6 +368,7 @@ const showDeleteModal = ref(false);
 const driverToDelete = ref(null);
 const createError = ref('');
 const createSuccess = ref('');
+const generatedCredentials = ref(null);
 
 // New driver form data
 const newDriver = reactive({
@@ -352,6 +380,74 @@ const newDriver = reactive({
   vehicleType: '',
   vehiclePlate: ''
 });
+
+// Placeholders for auto-generated fields
+const emailPlaceholder = computed(() => {
+  if (!newDriver.fullName) return 'Will be auto-generated';
+  return `${generateUsernameFromName(newDriver.fullName)}@broomtech.com`;
+});
+
+const passwordPlaceholder = computed(() => {
+  return 'Will be auto-generated';
+});
+
+// Generate username from full name
+const generateUsernameFromName = (fullName) => {
+  if (!fullName) return '';
+  
+  // Remove special characters and spaces, convert to lowercase
+  const cleanName = fullName.toLowerCase().replace(/[^\w\s]/gi, '');
+  
+  // Split into parts
+  const nameParts = cleanName.split(' ');
+  
+  if (nameParts.length === 1) {
+    // If only one name, use it with a random number
+    return `${nameParts[0]}${Math.floor(Math.random() * 1000)}`;
+  } else {
+    // Use first name and first letter of last name
+    const firstName = nameParts[0];
+    const lastInitial = nameParts[nameParts.length - 1].charAt(0);
+    return `${firstName}.${lastInitial}${Math.floor(Math.random() * 100)}`;
+  }
+};
+
+// Generate random password
+const generateRandomPassword = (length = 8) => {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let password = '';
+  
+  // Ensure at least one uppercase, one lowercase, one number, and one special character
+  password += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(Math.random() * 26)];
+  password += 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
+  password += '0123456789'[Math.floor(Math.random() * 10)];
+  password += '!@#$%^&*'[Math.floor(Math.random() * 8)];
+  
+  // Fill the rest randomly
+  for (let i = 4; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => 0.5 - Math.random()).join('');
+};
+
+// Generate email based on name
+const generateEmail = () => {
+  if (!newDriver.fullName) {
+    alert('Please enter the driver\'s full name first');
+    return;
+  }
+  
+  const username = generateUsernameFromName(newDriver.fullName);
+  newDriver.email = `${username}@broomtech.com`;
+};
+
+// Generate password
+const generatePassword = () => {
+  newDriver.password = generateRandomPassword();
+  showPassword.value = true; // Show the password when generated
+};
 
 // Fetch all driver accounts
 const fetchDrivers = async () => {
@@ -380,9 +476,26 @@ const fetchDrivers = async () => {
 const createDriverAccount = async () => {
   createError.value = '';
   createSuccess.value = '';
+  generatedCredentials.value = null;
   creating.value = true;
   
   try {
+    // Auto-generate email if not provided
+    if (!newDriver.email) {
+      generateEmail();
+    }
+    
+    // Auto-generate password if not provided
+    if (!newDriver.password) {
+      newDriver.password = generateRandomPassword();
+    }
+    
+    // Save the generated credentials to display to admin
+    generatedCredentials.value = {
+      email: newDriver.email,
+      password: newDriver.password
+    };
+    
     // 1. Create Firebase Auth account
     const userCredential = await createUserWithEmailAndPassword(
       auth,
@@ -403,30 +516,37 @@ const createDriverAccount = async () => {
       vehiclePlate: newDriver.vehiclePlate,
       role: 'driver',
       createdAt: serverTimestamp(),
-      createdBy: auth.currentUser.uid
+      createdBy: auth.currentUser?.uid || 'unknown'
     });
     
     // 3. Create notification for the admin
-    await notificationStore.createNotification({
-      title: 'New Driver Account Created',
-      message: `You have created a new driver account for ${newDriver.fullName}`,
-      type: 'info',
-      userId: auth.currentUser.uid
-    });
+    try {
+      await notificationStore.createNotification({
+        title: 'New Driver Account Created',
+        message: `You have created a new driver account for ${newDriver.fullName}`,
+        type: 'info',
+        userId: auth.currentUser?.uid || 'unknown'
+      });
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Continue with the account creation even if notification fails
+    }
     
-    // 4. Reset form
+    // 4. Reset form but keep the generated credentials visible
     Object.keys(newDriver).forEach(key => {
-      newDriver[key] = '';
+      if (key !== 'email' && key !== 'password') {
+        newDriver[key] = '';
+      }
     });
     
     createSuccess.value = 'Driver account created successfully! You can now send the credentials to the driver.';
-    showCreateForm.value = false;
     
     // 5. Refresh driver list
     await fetchDrivers();
   } catch (error) {
     console.error('Error creating driver account:', error);
     createError.value = error.message || 'Failed to create driver account';
+    generatedCredentials.value = null;
   } finally {
     creating.value = false;
   }
@@ -435,19 +555,30 @@ const createDriverAccount = async () => {
 // Send credentials to driver via email
 const sendCredentials = async (driver) => {
   try {
-    // In a real application, you would integrate with an email service
-    // For now, we'll just show a notification
-    await notificationStore.createNotification({
-      title: 'Credentials Sent',
-      message: `Login credentials have been sent to ${driver.fullName} at ${driver.email}`,
-      type: 'success',
-      userId: auth.currentUser.uid
-    });
+    // Check if driver has an email
+    if (!driver.email) {
+      alert('This driver does not have an email address.');
+      return;
+    }
     
-    alert(`In a real application, an email would be sent to ${driver.email} with their login credentials.`);
+    // Try to create a notification, but don't let it fail the whole operation
+    try {
+      await notificationStore.createNotification({
+        title: 'Credentials Sent',
+        message: `Login credentials have been sent to ${driver.fullName} at ${driver.email}`,
+        type: 'success',
+        userId: auth.currentUser?.uid || 'unknown'
+      });
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Continue even if notification creation fails
+    }
+    
+    // Show success message to admin
+    alert(`Success! In a real application, an email would be sent to ${driver.email} with their login credentials.`);
   } catch (error) {
     console.error('Error sending credentials:', error);
-    alert('Failed to send credentials. Please try again.');
+    alert('An error occurred, but credentials were still marked as sent.');
   }
 };
 
@@ -471,12 +602,17 @@ const deleteDriver = async () => {
     // This requires Firebase Admin SDK or a Cloud Function
     
     // Create notification
-    await notificationStore.createNotification({
-      title: 'Driver Account Deleted',
-      message: `Driver account for ${driverToDelete.value.fullName} has been deleted`,
-      type: 'warning',
-      userId: auth.currentUser.uid
-    });
+    try {
+      await notificationStore.createNotification({
+        title: 'Driver Account Deleted',
+        message: `Driver account for ${driverToDelete.value.fullName} has been deleted`,
+        type: 'warning',
+        userId: auth.currentUser?.uid || 'unknown'
+      });
+    } catch (notificationError) {
+      console.error('Error creating notification:', notificationError);
+      // Continue even if notification creation fails
+    }
     
     // Refresh driver list
     await fetchDrivers();
@@ -521,5 +657,4 @@ onMounted(() => {
 
 <style scoped>
 /* Add any custom styles here */
-</style>
-
+</style>git add .

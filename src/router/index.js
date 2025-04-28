@@ -32,6 +32,7 @@ const AdminBookings = () => import("../views/admin/Bookings.vue")
 const AdminPayments = () => import("../views/admin/Payments.vue")
 const AdminReports = () => import("../views/admin/Reports.vue")
 const AdminSettings = () => import("../views/admin/Settings.vue")
+const DriverManagement = () => import("../views/admin/DriverManagement.vue")
 
 const routes = [
   {
@@ -67,13 +68,13 @@ const routes = [
   {
     path: "/admin/login",
     name: "AdminLogin",
-    component: () => import("../views/auth/AdminLogin.vue"),
+    component: AdminLogin,
     meta: { requiresAuth: false },
   },
   {
     path: "/admin",
     name: "AdminDashboard",
-    component: () => import("../views/admin/Dashboard.vue"),
+    component: AdminDashboard,
     meta: { requiresAuth: true, role: "admin" },
   },
 
@@ -145,37 +146,43 @@ const routes = [
   {
     path: "/admin/users",
     name: "AdminUsers",
-    component: () => import("../views/admin/Users.vue"),
+    component: AdminUsers,
     meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/admin/drivers",
     name: "AdminDrivers",
-    component: () => import("../views/admin/Drivers.vue"),
+    component: AdminDrivers,
+    meta: { requiresAuth: true, role: "admin" },
+  },
+  {
+    path: "/admin/driver-management",
+    name: "DriverManagement",
+    component: DriverManagement,
     meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/admin/bookings",
     name: "AdminBookings",
-    component: () => import("../views/admin/Bookings.vue"),
+    component: AdminBookings,
     meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/admin/payments",
     name: "AdminPayments",
-    component: () => import("../views/admin/Payments.vue"),
+    component: AdminPayments,
     meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/admin/reports",
     name: "AdminReports",
-    component: () => import("../views/admin/Reports.vue"),
+    component: AdminReports,
     meta: { requiresAuth: true, role: "admin" },
   },
   {
     path: "/admin/settings",
     name: "AdminSettings",
-    component: () => import("../views/admin/Settings.vue"),
+    component: AdminSettings,
     meta: { requiresAuth: true, role: "admin" },
   },
 ]
@@ -227,4 +234,3 @@ router.beforeEach(async (to, from, next) => {
 })
 
 export default router
-
