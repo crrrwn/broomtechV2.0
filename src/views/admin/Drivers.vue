@@ -8,11 +8,25 @@
       </header>
       <main>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+          <!-- Error Alert -->
+          <div v-if="error" class="mb-4 rounded-md bg-red-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">{{ error }}</h3>
+              </div>
+            </div>
+          </div>
+          
           <!-- Driver List -->
           <div class="px-4 py-8 sm:px-0">
             <div class="bg-white shadow overflow-hidden sm:rounded-md">
               <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
-                <h2 class="text-lg leading-6 font-medium text-gray-900">Drivers</h2>
+                <h2 class="text-lg leading-6 font-medium text-gray-900">Driver Applications</h2>
                 <div class="flex space-x-3">
                   <div class="relative">
                     <input
@@ -33,20 +47,33 @@
                   </select>
                 </div>
               </div>
-              <ul class="divide-y divide-gray-200">
+              
+              <!-- Loading State -->
+              <div v-if="loading" class="px-4 py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="mt-2 text-sm text-gray-500">Loading driver applications...</p>
+              </div>
+              
+              <!-- Empty State -->
+              <div v-else-if="drivers.length === 0" class="px-4 py-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No driver applications</h3>
+                <p class="mt-1 text-sm text-gray-500">No driver applications have been submitted yet.</p>
+              </div>
+              
+              <!-- Driver List -->
+              <ul v-else class="divide-y divide-gray-200">
                 <li v-for="driver in filteredDrivers" :key="driver.id">
                   <div class="block hover:bg-gray-50">
                     <div class="px-4 py-4 sm:px-6">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center">
-                          <div class="flex-shrink-0 h-10 w-10">
-                            <img
-                              class="h-10 w-10 rounded-full"
-                              :src="driver.photoURL || 'https://via.placeholder.com/40'"
-                              alt=""
-                            />
-                          </div>
-                          <div class="ml-4">
+                          <div class="flex items-center">
                             <div class="text-sm font-medium text-indigo-600">{{ driver.fullName }}</div>
                             <div class="text-sm text-gray-500">{{ driver.email }}</div>
                           </div>
@@ -77,8 +104,9 @@
                   No drivers found matching your criteria.
                 </li>
               </ul>
+              
               <!-- Pagination -->
-              <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+              <div v-if="drivers.length > 0" class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                 <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                   <div>
                     <p class="text-sm text-gray-700">
@@ -215,7 +243,7 @@
                     </div>
                     <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt class="text-sm font-medium text-gray-500">Phone number</dt>
-                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ selectedDriver.phone }}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ selectedDriver.phoneNumber }}</dd>
                     </div>
                     <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt class="text-sm font-medium text-gray-500">Address</dt>
@@ -231,7 +259,7 @@
                     </div>
                     <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt class="text-sm font-medium text-gray-500">License plate</dt>
-                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ selectedDriver.licensePlate }}</dd>
+                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ selectedDriver.vehiclePlate }}</dd>
                     </div>
                     <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
                       <dt class="text-sm font-medium text-gray-500">Driver's license</dt>
@@ -252,16 +280,28 @@
                         </span>
                       </dd>
                     </div>
-                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
-                      <dt class="text-sm font-medium text-gray-500">Driver Photo</dt>
+                    <div v-if="selectedDriver.availableDays" class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                      <dt class="text-sm font-medium text-gray-500">Available Days</dt>
                       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                        <div class="border border-gray-200 rounded-md overflow-hidden">
-                          <img
-                            :src="selectedDriver.photoURL || 'https://via.placeholder.com/300'"
-                            alt="Driver"
-                            class="w-full h-auto max-h-48 object-contain"
-                          />
+                        <div class="flex flex-wrap gap-2">
+                          <span v-for="(value, day) in selectedDriver.availableDays" :key="day" 
+                                v-if="value" 
+                                class="px-2 py-1 bg-gray-100 rounded-md text-xs">
+                            {{ day.charAt(0).toUpperCase() + day.slice(1) }}
+                          </span>
                         </div>
+                      </dd>
+                    </div>
+                    <div v-if="selectedDriver.availability" class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                      <dt class="text-sm font-medium text-gray-500">Availability</dt>
+                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ formatAvailability(selectedDriver.availability) }}
+                      </dd>
+                    </div>
+                    <div v-if="selectedDriver.startTime && selectedDriver.endTime" class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                      <dt class="text-sm font-medium text-gray-500">Working Hours</dt>
+                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ formatTime(selectedDriver.startTime) }} - {{ formatTime(selectedDriver.endTime) }}
                       </dd>
                     </div>
                     <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
@@ -269,7 +309,7 @@
                       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <div class="border border-gray-200 rounded-md overflow-hidden">
                           <img
-                            :src="selectedDriver.licenseUrl"
+                            :src="getLicensePhoto(selectedDriver)"
                             alt="License"
                             class="w-full h-auto max-h-48 object-contain"
                           />
@@ -281,11 +321,17 @@
                       <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                         <div class="border border-gray-200 rounded-md overflow-hidden">
                           <img
-                            :src="selectedDriver.vehicleUrl"
+                            :src="getVehiclePhoto(selectedDriver)"
                             alt="Vehicle"
                             class="w-full h-auto max-h-48 object-contain"
                           />
                         </div>
+                      </dd>
+                    </div>
+                    <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4">
+                      <dt class="text-sm font-medium text-gray-500">Application Date</dt>
+                      <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                        {{ selectedDriver.createdAt ? formatDate(selectedDriver.createdAt) : 'N/A' }}
                       </dd>
                     </div>
                   </dl>
@@ -309,37 +355,156 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { collection, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore'
 import { db } from '../../firebase/config'
+import { useDriverStore } from '../../stores/driver'
 
 export default {
   name: 'AdminDrivers',
   setup() {
+    const driverStore = useDriverStore()
     const drivers = ref([])
     const selectedDriver = ref(null)
     const searchQuery = ref('')
     const statusFilter = ref('all')
     const currentPage = ref(1)
     const itemsPerPage = 10
+    let unsubscribe = null
+    const loading = ref(false)
+    const error = ref(null)
 
-    // Fetch drivers from Firestore
-    const fetchDrivers = async () => {
+    // Format date from Firestore timestamp
+    const formatDate = (timestamp) => {
+      if (!timestamp) return 'N/A'
+      
+      // Handle Firestore timestamp objects
+      const date = timestamp instanceof Timestamp 
+        ? timestamp.toDate() 
+        : new Date(timestamp)
+      
+      return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date)
+    }
+
+    // Format time (HH:MM)
+    const formatTime = (timeString) => {
+      if (!timeString) return ''
+      
+      // If already in HH:MM format, return as is
+      if (timeString.includes(':')) {
+        return timeString
+      }
+      
+      // Otherwise, assume it's a 24-hour format and convert
       try {
-        const driversCollection = collection(db, 'drivers')
-        const driversSnapshot = await getDocs(driversCollection)
-        const driversList = []
+        const date = new Date()
+        const [hours, minutes] = timeString.split(':')
+        date.setHours(parseInt(hours, 10))
+        date.setMinutes(parseInt(minutes, 10))
         
-        driversSnapshot.forEach((doc) => {
-          driversList.push({
-            id: doc.id,
-            ...doc.data()
-          })
+        return date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
         })
+      } catch (e) {
+        return timeString
+      }
+    }
+
+    // Format availability string
+    const formatAvailability = (availability) => {
+      if (!availability) return 'Not specified'
+      
+      // Convert kebab-case or snake_case to readable format
+      return availability
+        .replace(/-/g, ' ')
+        .replace(/_/g, ' ')
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    }
+
+    const getLicensePhoto = (driver) => {
+      // Check for different possible sources of license photo
+      if (driver.licenseURL) {
+        return driver.licenseURL;
+      } else if (driver.licensePhotoBase64) {
+        return driver.licensePhotoBase64;
+      } else {
+        return 'https://via.placeholder.com/300?text=License+Photo';
+      }
+    };
+
+    const getVehiclePhoto = (driver) => {
+      // Check for different possible sources of vehicle photo
+      if (driver.vehicleURL) {
+        return driver.vehicleURL;
+      } else if (driver.vehiclePhotoBase64) {
+        return driver.vehiclePhotoBase64;
+      } else {
+        return 'https://via.placeholder.com/300?text=Vehicle+Photo';
+      }
+    };
+
+    // Fetch drivers from Firestore with real-time updates
+    const setupDriversListener = () => {
+      loading.value = true
+      error.value = null
+      
+      try {
+        // Use the correct collection: "driver-applications"
+        const driversQuery = query(
+          collection(db, "driver-applications"),
+          orderBy('createdAt', 'desc')
+        )
         
-        drivers.value = driversList
-      } catch (error) {
-        console.error('Error fetching drivers:', error)
+        unsubscribe = onSnapshot(driversQuery, (snapshot) => {
+          const driversList = []
+          
+          snapshot.forEach((doc) => {
+            const data = doc.data()
+            driversList.push({
+              id: doc.id,
+              ...data,
+              // Set default status if not present
+              status: data.status || 'pending'
+            })
+          })
+          
+          drivers.value = driversList
+          loading.value = false
+        }, (err) => {
+          console.error('Error in drivers listener:', err)
+          error.value = 'Failed to load driver applications'
+          loading.value = false
+        })
+      } catch (err) {
+        console.error('Error setting up drivers listener:', err)
+        error.value = 'Failed to set up driver applications listener'
+        loading.value = false
+      }
+    }
+
+    // Alternative method using the store
+    const fetchDriverApplications = async () => {
+      loading.value = true
+      error.value = null
+      
+      try {
+        const applications = await driverStore.getDriverApplications()
+        drivers.value = applications
+        loading.value = false
+      } catch (err) {
+        console.error('Error fetching driver applications:', err)
+        error.value = 'Failed to fetch driver applications'
+        loading.value = false
       }
     }
 
@@ -350,10 +515,10 @@ export default {
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(driver => 
-          driver.fullName.toLowerCase().includes(query) || 
-          driver.email.toLowerCase().includes(query) ||
-          driver.phone.includes(query) ||
-          driver.licensePlate.toLowerCase().includes(query)
+          (driver.fullName && driver.fullName.toLowerCase().includes(query)) || 
+          (driver.email && driver.email.toLowerCase().includes(query)) ||
+          (driver.phoneNumber && driver.phoneNumber.includes(query)) ||
+          (driver.vehiclePlate && driver.vehiclePlate.toLowerCase().includes(query))
         )
       }
 
@@ -374,10 +539,10 @@ export default {
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(driver => 
-          driver.fullName.toLowerCase().includes(query) || 
-          driver.email.toLowerCase().includes(query) ||
-          driver.phone.includes(query) ||
-          driver.licensePlate.toLowerCase().includes(query)
+          (driver.fullName && driver.fullName.toLowerCase().includes(query)) || 
+          (driver.email && driver.email.toLowerCase().includes(query)) ||
+          (driver.phoneNumber && driver.phoneNumber.includes(query)) ||
+          (driver.vehiclePlate && driver.vehiclePlate.toLowerCase().includes(query))
         )
       }
 
@@ -390,7 +555,7 @@ export default {
 
     // Calculate total pages for pagination
     const totalPages = computed(() => {
-      return Math.ceil(totalDrivers.value / itemsPerPage)
+      return Math.ceil(totalDrivers.value / itemsPerPage) || 1
     })
 
     // Calculate pagination start and end
@@ -432,27 +597,53 @@ export default {
     // Update driver status
     const updateDriverStatus = async (status) => {
       try {
-        await updateDoc(doc(db, 'drivers', selectedDriver.value.id), {
-          status: status
-        })
-        
-        // Update local state
-        selectedDriver.value.status = status
-        
-        // Update in the drivers array
-        const index = drivers.value.findIndex(d => d.id === selectedDriver.value.id)
-        if (index !== -1) {
-          drivers.value[index].status = status
+        if (status === 'rejected') {
+          // Delete the document from Firestore
+          await deleteDoc(doc(db, "driver-applications", selectedDriver.value.id))
+          
+          // Remove from local array
+          const index = drivers.value.findIndex(d => d.id === selectedDriver.value.id)
+          if (index !== -1) {
+            drivers.value.splice(index, 1)
+          }
+          
+          // Close the modal
+          selectedDriver.value = null
+          
+          alert('Driver application has been rejected and removed')
+        } else {
+          // Use the driver store to update status
+          await driverStore.updateDriverApplicationStatus(selectedDriver.value.id, status)
+          
+          // Update local state
+          selectedDriver.value.status = status
+          
+          // Update in the drivers array
+          const index = drivers.value.findIndex(d => d.id === selectedDriver.value.id)
+          if (index !== -1) {
+            drivers.value[index].status = status
+          }
+          
+          alert(`Driver status updated to ${status}`)
         }
-        
-        alert(`Driver status updated to ${status}`)
       } catch (error) {
         console.error('Error updating driver status:', error)
         alert('Failed to update driver status')
       }
     }
 
-    onMounted(fetchDrivers)
+    onMounted(() => {
+      // Choose one of these methods:
+      setupDriversListener() // Real-time updates
+      // fetchDriverApplications() // One-time fetch using store
+    })
+
+    onUnmounted(() => {
+      // Clean up the listener when component is unmounted
+      if (unsubscribe) {
+        unsubscribe()
+      }
+    })
 
     return {
       drivers,
@@ -470,9 +661,19 @@ export default {
       goToPage,
       viewDriverDetails,
       closeModal,
-      updateDriverStatus
+      updateDriverStatus,
+      formatDate,
+      formatTime,
+      formatAvailability,
+      getLicensePhoto,
+      getVehiclePhoto,
+      loading,
+      error
     }
   }
 }
 </script>
 
+<style scoped>
+/* Add any custom styles here if needed */
+</style>

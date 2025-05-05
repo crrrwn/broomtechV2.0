@@ -169,6 +169,9 @@
                       <div v-if="licenseFile" class="mt-2 text-sm text-gray-500">
                         Selected file: {{ licenseFile.name }}
                       </div>
+                      <div v-if="licensePreview" class="mt-2">
+                        <img :src="licensePreview" alt="License preview" class="h-32 object-cover rounded-md" />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -230,7 +233,7 @@
                         v-model="driverData.vehicleYear"
                         required
                         min="1990"
-                        max="2023"
+                        :max="new Date().getFullYear()"
                         class="mt-1 focus:ring-green-500 focus:border-green-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" 
                       />
                     </div>
@@ -264,6 +267,9 @@
                       </div>
                       <div v-if="vehicleFile" class="mt-2 text-sm text-gray-500">
                         Selected file: {{ vehicleFile.name }}
+                      </div>
+                      <div v-if="vehiclePreview" class="mt-2">
+                        <img :src="vehiclePreview" alt="Vehicle preview" class="h-32 object-cover rounded-md" />
                       </div>
                     </div>
                   </div>
@@ -493,184 +499,243 @@
       </div>
     </div>
   </div>
-  </template>
+</template>
   
-  <script setup>
-  import { ref, reactive } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { useDriverStore } from '../../stores/driver';
-  import { useNotificationStore } from '../../stores/notification';
-  
-  const router = useRouter();
-  const driverStore = useDriverStore();
-  const notificationStore = useNotificationStore();
-  
-  const licenseFile = ref(null);
-  const vehicleFile = ref(null);
-  const submitting = ref(false);
-  const error = ref('');
-  const success = ref('');
-  
-  const driverData = reactive({
-    fullName: '',
-    dateOfBirth: '',
-    phoneNumber: '',
-    email: '',
-    address: '',
-    licenseNumber: '',
-    licenseExpiry: '',
-    vehicleType: '',
-    vehiclePlate: '',
-    vehicleModel: '',
-    vehicleYear: '',
-    availability: '',
-    availableDays: {
-      monday: false,
-      tuesday: false,
-      wednesday: false,
-      thursday: false,
-      friday: false,
-      saturday: false,
-      sunday: false
-    },
-    startTime: '',
-    endTime: '',
-    termsAccepted: false
-  });
-  
-  const handleLicenseFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        error.value = 'License file size must be less than 10MB';
-        event.target.value = ''; // Clear the file input
-        return;
-      }
-      licenseFile.value = file;
-    }
-  };
-  
-  const handleVehicleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
-        error.value = 'Vehicle photo size must be less than 10MB';
-        event.target.value = ''; // Clear the file input
-        return;
-      }
-      vehicleFile.value = file;
-    }
-  };
-  
-  const validateForm = () => {
-    // Check if at least one day is selected
-    const anyDaySelected = Object.values(driverData.availableDays).some(day => day);
-    if (!anyDaySelected) {
-      error.value = 'Please select at least one available day';
-      return false;
-    }
-  
-    // Check if files are uploaded
-    if (!licenseFile.value) {
-      error.value = 'Please upload your license photo';
-      return false;
-    }
-  
-    if (!vehicleFile.value) {
-      error.value = 'Please upload your vehicle photo';
-      return false;
-    }
-  
-    // Check if terms are accepted
-    if (!driverData.termsAccepted) {
-      error.value = 'You must accept the terms and conditions';
-      return false;
-    }
-  
-    return true;
-  };
-  
-  const submitApplication = async () => {
-    error.value = '';
-    success.value = '';
-  
-    if (!validateForm()) {
+<script setup>
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useDriverStore } from '../../stores/driver';
+import { useNotificationStore } from '../../stores/notification';
+import { getAuth } from 'firebase/auth';
+
+const router = useRouter();
+const driverStore = useDriverStore();
+const notificationStore = useNotificationStore();
+const auth = getAuth();
+
+const licenseFile = ref(null);
+const vehicleFile = ref(null);
+const licensePreview = ref(null);
+const vehiclePreview = ref(null);
+const submitting = ref(false);
+const error = ref('');
+const success = ref('');
+
+// Initialize licensePreview and vehiclePreview with null
+const initialPreview = null;
+licensePreview.value = initialPreview;
+vehiclePreview.value = initialPreview;
+
+const driverData = reactive({
+  fullName: '',
+  dateOfBirth: '',
+  phoneNumber: '',
+  email: '',
+  address: '',
+  licenseNumber: '',
+  licenseExpiry: '',
+  vehicleType: '',
+  vehiclePlate: '',
+  vehicleModel: '',
+  vehicleYear: '',
+  availability: '',
+  availableDays: {
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+    sunday: false
+  },
+  startTime: '',
+  endTime: '',
+  termsAccepted: false,
+  status: 'pending', // Default status for new applications
+  licensePhotoBase64: null, // Store base64 encoded license photo
+  vehiclePhotoBase64: null // Store base64 encoded vehicle photo
+});
+
+// Initialize previews to null to avoid conditional hook call
+// onMounted(() => {
+//   licensePreview.value = null;
+//   vehiclePreview.value = null;
+// });
+
+const handleLicenseFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = 'License file size must be less than 10MB';
+      event.target.value = ''; // Clear the file input
       return;
     }
-  
-    submitting.value = true;
-  
-    try {
-      // Register as driver without file uploads
-      const applicationId = await driverStore.registerDriverWithoutAuth(
+    licenseFile.value = file;
+    
+    // Create preview and base64 data for image files
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        licensePreview.value = e.target.result;
+        driverData.licensePhotoBase64 = e.target.result; // Store base64 data
+      };
+      reader.readAsDataURL(file);
+    } else {
+      licensePreview.value = null;
+      // For non-image files like PDF, just store the file object
+      // We'll handle it differently during submission
+    }
+  }
+};
+
+const handleVehicleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      error.value = 'Vehicle photo size must be less than 10MB';
+      event.target.value = ''; // Clear the file input
+      return;
+    }
+    vehicleFile.value = file;
+    
+    // Create preview and base64 data for image files
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        vehiclePreview.value = e.target.result;
+        driverData.vehiclePhotoBase64 = e.target.result; // Store base64 data
+      };
+      reader.readAsDataURL(file);
+    } else {
+      vehiclePreview.value = null;
+    }
+  }
+};
+
+const validateForm = () => {
+  // Check if at least one day is selected
+  const anyDaySelected = Object.values(driverData.availableDays).some(day => day);
+  if (!anyDaySelected) {
+    error.value = 'Please select at least one available day';
+    return false;
+  }
+
+  // Check if files are uploaded
+  if (!licenseFile.value) {
+    error.value = 'Please upload your license photo';
+    return false;
+  }
+
+  if (!vehicleFile.value) {
+    error.value = 'Please upload your vehicle photo';
+    return false;
+  }
+
+  // Check if terms are accepted
+  if (!driverData.termsAccepted) {
+    error.value = 'You must accept the terms and conditions';
+    return false;
+  }
+
+  return true;
+};
+
+const submitApplication = async () => {
+  error.value = '';
+  success.value = '';
+
+  if (!validateForm()) {
+    return;
+  }
+
+  submitting.value = true;
+
+  try {
+    console.log('Preparing application data...');
+    
+    // Check if user is authenticated
+    const isAuthenticated = auth.currentUser !== null;
+    
+    // Choose the appropriate method based on authentication status
+    let applicationId;
+    if (isAuthenticated) {
+      // Use registerDriverWithAuth for authenticated users
+      applicationId = await driverStore.registerDriverWithAuth(
+        driverData,
+        licenseFile.value,
+        vehicleFile.value
+      );
+    } else {
+      // Use registerDriverWithoutAuth for non-authenticated users
+      // We'll pass the base64 encoded images in the driver data
+      applicationId = await driverStore.registerDriverWithoutAuth(
         {
-          fullName: driverData.fullName,
-          dateOfBirth: driverData.dateOfBirth,
-          phoneNumber: driverData.phoneNumber,
-          email: driverData.email,
-          address: driverData.address,
-          licenseNumber: driverData.licenseNumber,
-          licenseExpiry: driverData.licenseExpiry,
-          vehicleType: driverData.vehicleType,
-          vehiclePlate: driverData.vehiclePlate,
-          vehicleModel: driverData.vehicleModel,
-          vehicleYear: driverData.vehicleYear,
-          availability: driverData.availability,
-          availableDays: driverData.availableDays,
-          startTime: driverData.startTime,
-          endTime: driverData.endTime
+          ...driverData,
+          licensePhotoBase64: driverData.licensePhotoBase64,
+          vehiclePhotoBase64: driverData.vehiclePhotoBase64
         },
         licenseFile.value,
         vehicleFile.value
       );
-      
-      // Create notification for admin
+    }
+    
+    console.log('Application submitted successfully with ID:', applicationId);
+    
+    // Create notification for admin
+    try {
       await notificationStore.createDriverApplicationNotification(
         driverData.fullName,
         applicationId
       );
-      
-      success.value = 'Your application has been submitted successfully! We will review it and contact you soon. Note: Your files were not uploaded as file storage is not yet available.';
-      
-      // Reset form after successful submission
-      Object.keys(driverData).forEach(key => {
-        if (key === 'availableDays') {
-          Object.keys(driverData.availableDays).forEach(day => {
-            driverData.availableDays[day] = false;
-          });
-        } else if (key === 'termsAccepted') {
-          driverData[key] = false;
-        } else {
-          driverData[key] = '';
-        }
-      });
-      
-      licenseFile.value = null;
-      vehicleFile.value = null;
-      
-      // Reset file inputs
-      const licenseInput = document.getElementById('license-file');
-      const vehicleInput = document.getElementById('vehicle-file');
-      if (licenseInput) licenseInput.value = '';
-      if (vehicleInput) vehicleInput.value = '';
-      
-      // Redirect after 3 seconds
-      setTimeout(() => {
-        router.push('/');
-      }, 3000);
-    } catch (err) {
-      console.error('Error submitting driver application:', err);
-      error.value = err.message || 'Failed to submit application. Please try again.';
-    } finally {
-      submitting.value = false;
+      console.log('Admin notification created');
+    } catch (notificationError) {
+      console.error('Notification creation error:', notificationError);
+      // Continue even if notification fails
     }
-  };
-  </script>
+    
+    success.value = 'Your application has been submitted successfully! We will review it and contact you soon.';
+    
+    // Reset form after successful submission
+    Object.keys(driverData).forEach(key => {
+      if (key === 'availableDays') {
+        Object.keys(driverData.availableDays).forEach(day => {
+          driverData.availableDays[day] = false;
+        });
+      } else if (key === 'termsAccepted') {
+        driverData[key] = false;
+      } else if (key === 'status') {
+        driverData[key] = 'pending';
+      } else {
+        driverData[key] = '';
+      }
+    });
+    
+    licenseFile.value = null;
+    vehicleFile.value = null;
+    licensePreview.value = null;
+    vehiclePreview.value = null;
+    
+    // Reset file inputs
+    const licenseInput = document.getElementById('license-file');
+    const vehicleInput = document.getElementById('vehicle-file');
+    if (licenseInput) licenseInput.value = '';
+    if (vehicleInput) vehicleInput.value = '';
+    
+    // Redirect after 3 seconds
+    setTimeout(() => {
+      router.push('/');
+    }, 3000);
+  } catch (err) {
+    console.error('Error submitting driver application:', err);
+    error.value = `Failed to submit application: ${err.message}`;
+  } finally {
+    submitting.value = false;
+  }
+};
+</script>
   
-  <style scoped>
-  /* Add any custom styles here */
-  </style>
-  
-  
+<style scoped>
+/* Add any custom styles here */
+</style>
