@@ -1,393 +1,459 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-    <h1 class="text-2xl font-semibold text-gray-900">Admin Dashboard</h1>
+  <div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <!-- Header with Grab Green Background -->
+    <div class="relative mb-6 sm:mb-8 overflow-hidden rounded-lg sm:rounded-2xl bg-grab-green p-4 sm:p-6 shadow-lg">
+      <div class="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white opacity-10"></div>
+      <div class="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-white opacity-10"></div>
+      
+      <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white md:text-4xl">Admin Dashboard</h1>
+          <p class="mt-2 max-w-xl text-green-50">Get a comprehensive overview of your business metrics and operations</p>
+        </div>
+        <div class="mt-4 flex flex-wrap gap-2 items-center sm:mt-0">
+          <span class="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white backdrop-blur-sm">
+            <span class="mr-1.5 h-2 w-2 rounded-full bg-green-400"></span>
+            System Online
+          </span>
+          <span class="inline-flex items-center rounded-full bg-white/20 px-3 py-1 text-sm font-medium text-white backdrop-blur-sm">
+            <span class="mr-1.5 h-2 w-2 rounded-full bg-amber-400"></span>
+            Last updated: {{ new Date().toLocaleTimeString() }}
+          </span>
+        </div>
+      </div>
+    </div>
     
-    <!-- Stats Overview -->
-    <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Stats Overview with Clean Cards -->
+    <div class="mb-6 sm:mb-8 grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4">
       <!-- Total Bookings -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-green-500 rounded-md p-3">
-              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">
-                  Total Bookings
-                </dt>
-                <dd>
-                  <div v-if="isLoadingStats" class="h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div v-else class="text-lg font-medium text-gray-900">
-                    {{ dashboardStats.totalBookings }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+      <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+          <svg class="h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+        
+        <h2 class="mt-4 text-sm font-medium text-gray-500">Total Bookings</h2>
+        <div v-if="isLoadingStats" class="mt-1 h-8 w-20 animate-pulse rounded-md bg-gray-200"></div>
+        <div v-else class="mt-1">
+          <span class="text-2xl sm:text-3xl font-bold text-gray-900">{{ dashboardStats.totalBookings }}</span>
+          <span class="ml-2 text-xs sm:text-sm font-medium text-green-600">+12% <span class="text-gray-400">vs last month</span></span>
+        </div>
+        
+        <div class="mt-4 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+          <div class="h-full rounded-full bg-purple-500" style="width: 75%"></div>
         </div>
       </div>
       
       <!-- Completed Deliveries -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-blue-500 rounded-md p-3">
-              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">
-                  Completed Deliveries
-                </dt>
-                <dd>
-                  <div v-if="isLoadingStats" class="h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div v-else class="text-lg font-medium text-gray-900">
-                    {{ dashboardStats.completedBookings }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+      <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-grab-green-light">
+          <svg class="h-6 w-6 text-grab-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        
+        <h2 class="mt-4 text-sm font-medium text-gray-500">Completed Deliveries</h2>
+        <div v-if="isLoadingStats" class="mt-1 h-8 w-20 animate-pulse rounded-md bg-gray-200"></div>
+        <div v-else class="mt-1">
+          <span class="text-2xl sm:text-3xl font-bold text-gray-900">{{ dashboardStats.completedBookings }}</span>
+          <span class="ml-2 text-xs sm:text-sm font-medium text-green-600">+8% <span class="text-gray-400">vs last month</span></span>
+        </div>
+        
+        <div class="mt-4 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+          <div class="h-full rounded-full bg-grab-green" style="width: 65%"></div>
         </div>
       </div>
       
       <!-- Total Revenue -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">
-                  Total Revenue
-                </dt>
-                <dd>
-                  <div v-if="isLoadingStats" class="h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div v-else class="text-lg font-medium text-gray-900">
-                    ₱{{ dashboardStats.totalEarnings.toLocaleString() }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+      <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+          <svg class="h-6 w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        
+        <h2 class="mt-4 text-sm font-medium text-gray-500">Total Revenue</h2>
+        <div v-if="isLoadingStats" class="mt-1 h-8 w-28 animate-pulse rounded-md bg-gray-200"></div>
+        <div v-else class="mt-1 flex flex-col sm:flex-row sm:items-center">
+          <span class="text-2xl sm:text-3xl font-bold text-gray-900">₱{{ dashboardStats.totalEarnings.toLocaleString() }}</span>
+          <span class="mt-1 sm:mt-0 ml-0 sm:ml-2 text-xs sm:text-sm font-medium text-green-600">+15% <span class="text-gray-400">vs last month</span></span>
+        </div>
+        
+        <div class="mt-4 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+          <div class="h-full rounded-full bg-amber-500" style="width: 85%"></div>
         </div>
       </div>
       
       <!-- Active Users -->
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="p-5">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-purple-500 rounded-md p-3">
-              <svg class="h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-gray-500 truncate">
-                  Active Users
-                </dt>
-                <dd>
-                  <div v-if="isLoadingStats" class="h-6 bg-gray-200 rounded animate-pulse"></div>
-                  <div v-else class="text-lg font-medium text-gray-900">
-                    {{ dashboardStats.totalUsers }}
-                  </div>
-                </dd>
-              </dl>
-            </div>
-          </div>
+      <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-sm">
+        <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-fuchsia-100">
+          <svg class="h-6 w-6 text-fuchsia-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+        </div>
+        
+        <h2 class="mt-4 text-sm font-medium text-gray-500">Active Users</h2>
+        <div v-if="isLoadingStats" class="mt-1 h-8 w-20 animate-pulse rounded-md bg-gray-200"></div>
+        <div v-else class="mt-1">
+          <span class="text-2xl sm:text-3xl font-bold text-gray-900">{{ dashboardStats.totalUsers }}</span>
+          <span class="ml-2 text-xs sm:text-sm font-medium text-green-600">+5% <span class="text-gray-400">vs last month</span></span>
+        </div>
+        
+        <div class="mt-4 h-1 w-full overflow-hidden rounded-full bg-gray-200">
+          <div class="h-full rounded-full bg-fuchsia-500" style="width: 55%"></div>
         </div>
       </div>
     </div>
     
-    <!-- Pending Payment Verifications -->
-    <div class="mt-8">
-      <h2 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        Pending Payment Verifications
-        <span class="ml-2 px-2.5 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
-          {{ pendingPayments.length }}
-        </span>
-      </h2>
-      
-      <div class="mt-2 bg-white shadow overflow-hidden sm:rounded-md">
-        <div v-if="isLoadingPayments" class="divide-y divide-gray-200">
-          <div v-for="i in 3" :key="i" class="px-4 py-4 sm:px-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center">
-                <div class="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div class="ml-2 h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-              </div>
-              <div class="ml-2 flex-shrink-0 flex">
-                <div class="h-6 bg-gray-200 rounded w-20 animate-pulse mr-2"></div>
-                <div class="h-6 bg-gray-200 rounded w-20 animate-pulse mr-2"></div>
-                <div class="h-6 bg-gray-200 rounded w-20 animate-pulse"></div>
-              </div>
+    <!-- Quick Actions with Clean Cards -->
+    <div class="mb-6 sm:mb-8 grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 md:grid-cols-3">
+      <div class="overflow-hidden rounded-xl bg-purple-500 p-4 sm:p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
             </div>
-            <div class="mt-2 sm:flex sm:justify-between">
-              <div class="sm:flex">
-                <div class="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
-                <div class="mt-2 h-4 bg-gray-200 rounded w-24 animate-pulse sm:mt-0 sm:ml-6"></div>
-                <div class="mt-2 h-4 bg-gray-200 rounded w-24 animate-pulse sm:mt-0 sm:ml-6"></div>
-              </div>
-              <div class="mt-2 h-4 bg-gray-200 rounded w-32 animate-pulse sm:mt-0"></div>
-            </div>
+            <h3 class="ml-3 text-sm sm:text-base font-medium text-white">Pending Driver Approvals</h3>
+          </div>
+          <div v-if="isLoadingStats" class="h-8 w-8 animate-pulse rounded-full bg-white/30"></div>
+          <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-medium text-white">
+            {{ pendingDriversCount }}
           </div>
         </div>
-        
-        <div v-else-if="pendingPayments.length === 0" class="p-6 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <router-link to="/admin/drivers" class="mt-3 sm:mt-4 inline-flex items-center rounded-lg bg-white/10 px-3 py-2 sm:px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-white/20">
+          Review Applications
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
           </svg>
-          <p class="mt-2 text-gray-600">No pending payment verifications at the moment.</p>
+        </router-link>
+      </div>
+      
+      <div class="overflow-hidden rounded-xl bg-amber-500 p-4 sm:p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="ml-3 text-sm sm:text-base font-medium text-white">Unassigned Bookings</h3>
+          </div>
+          <div v-if="isLoadingStats" class="h-8 w-8 animate-pulse rounded-full bg-white/30"></div>
+          <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-medium text-white">
+            {{ unassignedBookingsCount }}
+          </div>
         </div>
-        
-        <ul v-else class="divide-y divide-gray-200">
-          <li v-for="payment in pendingPayments" :key="payment.id" class="hover:bg-gray-50">
-            <div class="px-4 py-4 sm:px-6">
+        <router-link to="/admin/bookings" class="mt-3 sm:mt-4 inline-flex items-center rounded-lg bg-white/10 px-3 py-2 sm:px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-white/20">
+          Assign Drivers
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </router-link>
+      </div>
+      
+      <div class="overflow-hidden rounded-xl bg-rose-500 p-4 sm:p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+              </svg>
+            </div>
+            <h3 class="ml-3 text-sm sm:text-base font-medium text-white">Pending Refunds</h3>
+          </div>
+          <div v-if="isLoadingStats" class="h-8 w-8 animate-pulse rounded-full bg-white/30"></div>
+          <div v-else class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-medium text-white">
+            {{ pendingRefundsCount }}
+          </div>
+        </div>
+        <router-link to="/admin/payments" class="mt-3 sm:mt-4 inline-flex items-center rounded-lg bg-white/10 px-3 py-2 sm:px-4 text-sm font-medium text-white transition-colors duration-150 hover:bg-white/20">
+          Process Refunds
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </router-link>
+      </div>
+    </div>
+    
+    <!-- Main Content with Clean Cards -->
+    <div class="grid grid-cols-1 gap-6 sm:gap-8 lg:grid-cols-3">
+      <!-- Pending Payment Verifications -->
+      <div class="lg:col-span-2">
+        <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white shadow-sm">
+          <div class="flex items-center justify-between border-b border-gray-100 px-4 sm:px-6 py-4">
+            <div class="flex items-center">
+              <div class="flex h-8 sm:h-10 w-8 sm:w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 class="ml-3 text-base sm:text-lg font-semibold text-gray-900">Pending Payment Verifications</h2>
+            </div>
+            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 sm:px-3 py-0.5 text-xs sm:text-sm font-medium text-amber-800">
+              {{ pendingPayments.length }}
+            </span>
+          </div>
+          
+          <div v-if="isLoadingPayments" class="divide-y divide-gray-100">
+            <div v-for="i in 3" :key="i" class="px-4 sm:px-6 py-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center">
-                  <p class="text-sm font-medium text-green-600 truncate">
-                    Order #{{ payment.id.substring(0, 8) }}
-                  </p>
-                  <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                    Pending Verification
-                  </span>
+                  <div class="h-4 w-24 sm:w-32 animate-pulse rounded bg-gray-200"></div>
+                  <div class="ml-2 h-4 w-16 sm:w-24 animate-pulse rounded bg-gray-200"></div>
                 </div>
-                <div class="ml-2 flex-shrink-0 flex">
-                  <button 
-                    @click="viewPaymentProof(payment)" 
-                    class="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    View Proof
-                  </button>
-                  <button 
-                    @click="approvePayment(payment)" 
-                    class="mr-2 inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Approve
-                  </button>
-                  <button 
-                    @click="rejectPayment(payment)" 
-                    class="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Reject
-                  </button>
+                <div class="ml-2 flex flex-shrink-0 flex-wrap gap-2">
+                  <div class="h-8 w-16 sm:w-20 animate-pulse rounded bg-gray-200"></div>
+                  <div class="h-8 w-16 sm:w-20 animate-pulse rounded bg-gray-200"></div>
+                  <div class="h-8 w-16 sm:w-20 animate-pulse rounded bg-gray-200"></div>
                 </div>
               </div>
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <div class="mt-3 sm:flex sm:justify-between">
+                <div class="sm:flex flex-wrap gap-2">
+                  <div class="h-4 w-20 sm:w-24 animate-pulse rounded bg-gray-200"></div>
+                  <div class="mt-2 sm:mt-0 h-4 w-20 sm:w-24 animate-pulse rounded bg-gray-200"></div>
+                  <div class="mt-2 sm:mt-0 h-4 w-20 sm:w-24 animate-pulse rounded bg-gray-200"></div>
+                </div>
+                <div class="mt-2 sm:mt-0 h-4 w-24 sm:w-32 animate-pulse rounded bg-gray-200"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else-if="pendingPayments.length === 0" class="p-6 sm:p-8 text-center">
+            <div class="mx-auto mb-4 inline-flex h-12 sm:h-16 w-12 sm:w-16 items-center justify-center rounded-full bg-purple-100 text-purple-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 sm:h-8 w-6 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p class="text-base sm:text-lg font-medium text-gray-900">All caught up!</p>
+            <p class="mt-1 text-sm text-gray-500">No pending payment verifications at the moment.</p>
+          </div>
+          
+          <ul v-else class="divide-y divide-gray-100">
+            <li v-for="payment in pendingPayments" :key="payment.id" class="transition-colors duration-150 hover:bg-gray-50">
+              <div class="px-4 sm:px-6 py-4">
+                <div class="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+                  <div class="mb-3 flex items-center sm:mb-0">
+                    <div class="mr-3 h-10 w-1 rounded-full bg-amber-500"></div>
+                    <div>
+                      <p class="text-sm font-medium text-gray-900">
+                        Order #{{ payment.id.substring(0, 8) }}
+                      </p>
+                      <p class="text-xs text-gray-500">Awaiting verification</p>
+                    </div>
+                    <span class="ml-3 inline-flex items-center rounded-full bg-amber-100 px-2 sm:px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                      Pending
+                    </span>
+                  </div>
+                  <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                    <button 
+                      @click="viewPaymentProof(payment)" 
+                      class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors duration-150 hover:bg-gray-50"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 sm:mr-1.5 h-3 sm:h-3.5 w-3 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      View
+                    </button>
+                    <button 
+                      @click="approvePayment(payment)" 
+                      class="inline-flex items-center rounded-lg border border-transparent bg-grab-green px-2 sm:px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors duration-150 hover:bg-grab-green-dark"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 sm:mr-1.5 h-3 sm:h-3.5 w-3 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Approve
+                    </button>
+                    <button 
+                      @click="rejectPayment(payment)" 
+                      class="inline-flex items-center rounded-lg border border-transparent bg-rose-500 px-2 sm:px-3 py-1.5 text-xs font-medium text-white shadow-sm transition-colors duration-150 hover:bg-rose-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 sm:mr-1.5 h-3 sm:h-3.5 w-3 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Reject
+                    </button>
+                  </div>
+                </div>
+                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 text-xs text-gray-500">
+                  <div class="flex items-center rounded-lg bg-gray-50 p-2">
+                    <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
                     </svg>
-                    {{ payment.userName || 'Unknown User' }}
-                  </p>
-                  <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <span class="truncate">{{ payment.userName || 'Unknown User' }}</span>
+                  </div>
+                  <div class="flex items-center rounded-lg bg-gray-50 p-2">
+                    <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" />
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd" />
                     </svg>
-                    ₱{{ payment.totalAmount ? payment.totalAmount.toLocaleString() : '0.00' }}
-                  </p>
-                  <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z" clip-rule="evenodd" />
+                    <span class="truncate">₱{{ payment.totalAmount ? payment.totalAmount.toLocaleString() : '0.00' }}</span>
+                  </div>
+                  <div class="flex items-center rounded-lg bg-gray-50 p-2">
+                    <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                     </svg>
-                    {{ payment.service || 'Service' }}
-                  </p>
-                </div>
-                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                  </svg>
-                  <span>
-                    {{ formatDate(payment.paidAt) }}
-                  </span>
+                    <span class="truncate">{{ payment.service || 'Service' }}</span>
+                  </div>
+                  <div class="flex items-center rounded-lg bg-gray-50 p-2">
+                    <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="truncate">{{ formatDate(payment.paidAt) }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-    
-    <!-- Recent Activity -->
-    <div class="mt-8">
-      <h2 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h2>
-      <div class="mt-2 bg-white shadow overflow-hidden sm:rounded-md">
-        <div v-if="isLoadingActivities" class="divide-y divide-gray-200">
-          <div v-for="i in 3" :key="i" class="px-4 py-4 sm:px-6">
-            <div class="flex items-center justify-between">
-              <div class="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
-              <div class="ml-2 h-5 bg-gray-200 rounded w-20 animate-pulse"></div>
-            </div>
-            <div class="mt-2 sm:flex sm:justify-between">
-              <div class="sm:flex">
-                <div class="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
-                <div class="mt-2 h-4 bg-gray-200 rounded w-32 animate-pulse sm:mt-0 sm:ml-6"></div>
+      
+      <!-- Recent Activity -->
+      <div class="lg:col-span-1">
+        <div class="h-full overflow-hidden rounded-lg sm:rounded-xl bg-white shadow-sm">
+          <div class="flex items-center justify-between border-b border-gray-100 px-4 sm:px-6 py-4">
+            <div class="flex items-center">
+              <div class="flex h-8 sm:h-10 w-8 sm:w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-              <div class="mt-2 h-4 bg-gray-200 rounded w-32 animate-pulse sm:mt-0"></div>
+              <h2 class="ml-3 text-base sm:text-lg font-semibold text-gray-900">Recent Activity</h2>
+            </div>
+            <button class="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+              </svg>
+            </button>
+          </div>
+          
+          <div v-if="isLoadingActivities" class="divide-y divide-gray-100">
+            <div v-for="i in 4" :key="i" class="px-4 sm:px-6 py-4">
+              <div class="flex items-center justify-between">
+                <div class="h-4 w-24 sm:w-32 animate-pulse rounded bg-gray-200"></div>
+                <div class="h-5 w-12 sm:w-16 animate-pulse rounded bg-gray-200"></div>
+              </div>
+              <div class="mt-2">
+                <div class="h-4 w-20 sm:w-24 animate-pulse rounded bg-gray-200"></div>
+              </div>
+              <div class="mt-2">
+                <div class="h-4 w-24 sm:w-32 animate-pulse rounded bg-gray-200"></div>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div v-else-if="recentActivities.length === 0" class="p-6 text-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <p class="mt-2 text-gray-600">No recent activities found.</p>
-        </div>
-        
-        <ul v-else class="divide-y divide-gray-200">
-          <li v-for="(activity, index) in recentActivities" :key="index">
-            <div class="px-4 py-4 sm:px-6">
+          
+          <div v-else-if="recentActivities.length === 0" class="p-6 sm:p-8 text-center">
+            <div class="mx-auto mb-4 inline-flex h-12 sm:h-16 w-12 sm:w-16 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 sm:h-8 w-6 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p class="text-base sm:text-lg font-medium text-gray-900">No recent activity</p>
+            <p class="mt-1 text-sm text-gray-500">Activities will appear here as they occur.</p>
+          </div>
+          
+          <div v-else class="max-h-[400px] sm:max-h-[500px] divide-y divide-gray-100 overflow-y-auto">
+            <div v-for="(activity, index) in recentActivities" :key="index" class="px-4 sm:px-6 py-4 transition-colors duration-150 hover:bg-gray-50">
               <div class="flex items-center justify-between">
-                <p class="text-sm font-medium text-green-600 truncate">
+                <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">
                   {{ activity.description }}
                 </p>
-                <div class="ml-2 flex-shrink-0 flex">
-                  <p :class="getStatusClass(activity.status)" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                    {{ activity.status }}
-                  </p>
-                </div>
+                <span :class="getStatusClass(activity.status)" class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium">
+                  {{ activity.status }}
+                </span>
               </div>
-              <div class="mt-2 sm:flex sm:justify-between">
-                <div class="sm:flex">
-                  <p class="flex items-center text-sm text-gray-500">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                    </svg>
-                    {{ activity.user }}
-                  </p>
-                  <p class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" clip-rule="evenodd" />
-                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                    </svg>
-                    {{ activity.email }}
-                  </p>
-                </div>
-                <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                  </svg>
-                  <span>
-                    {{ activity.date }}
-                  </span>
-                </div>
+              <div class="mt-2 flex items-center text-xs text-gray-500">
+                <svg class="mr-1.5 h-3.5 sm:h-4 w-3.5 sm:w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                </svg>
+                <span class="truncate">{{ activity.user }}</span>
+              </div>
+              <div class="mt-2 flex items-center text-xs text-gray-500">
+                <svg class="mr-1.5 h-3.5 sm:h-4 w-3.5 sm:w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                </svg>
+                {{ activity.date }}
               </div>
             </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    
-    <!-- Quick Actions -->
-    <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Pending Driver Approvals</h3>
-          <div v-if="isLoadingStats" class="mt-2 h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
-          <div v-else class="mt-2 text-3xl font-semibold text-green-600">{{ pendingDriversCount }}</div>
-          <div class="mt-4">
-            <router-link to="/admin/drivers" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-              Review Applications
-            </router-link>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Unassigned Bookings</h3>
-          <div v-if="isLoadingStats" class="mt-2 h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
-          <div v-else class="mt-2 text-3xl font-semibold text-yellow-600">{{ unassignedBookingsCount }}</div>
-          <div class="mt-4">
-            <router-link to="/admin/bookings" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-              Assign Drivers
-            </router-link>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white overflow-hidden shadow rounded-lg">
-        <div class="px-4 py-5 sm:p-6">
-          <h3 class="text-lg leading-6 font-medium text-gray-900">Pending Refunds</h3>
-          <div v-if="isLoadingStats" class="mt-2 h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
-          <div v-else class="mt-2 text-3xl font-semibold text-red-600">{{ pendingRefundsCount }}</div>
-          <div class="mt-4">
-            <router-link to="/admin/payments" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-              Process Refunds
-            </router-link>
           </div>
         </div>
       </div>
     </div>
     
     <!-- Payment Proof Modal -->
-    <div v-if="showProofModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-xl p-6 max-w-2xl w-full shadow-2xl border border-gray-200 transform transition-all duration-300 scale-100">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xl font-bold text-gray-900">Payment Proof Verification</h3>
-          <button @click="closeProofModal" class="text-gray-400 hover:text-gray-500">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div v-if="showProofModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
+      <div class="relative max-w-3xl w-full overflow-hidden rounded-lg sm:rounded-xl bg-white shadow-lg">
+        <!-- Modal Header -->
+        <div class="relative border-b border-gray-200 px-4 sm:px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex h-8 sm:h-10 w-8 sm:w-10 items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 class="ml-3 text-lg sm:text-xl font-bold text-gray-900">Payment Proof Verification</h3>
+            </div>
+            <button @click="closeProofModal" class="rounded-full p-2 text-gray-400 transition-colors duration-150 hover:bg-gray-100 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 sm:h-6 w-5 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
         
-        <div class="border-t border-gray-200 pt-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="relative p-4 sm:p-6">
+          <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
             <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-2">Order Details</h4>
-              <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-sm mb-2"><span class="font-medium">Order ID:</span> #{{ selectedPayment?.id.substring(0, 8) }}</p>
-                <p class="text-sm mb-2"><span class="font-medium">Customer:</span> {{ selectedPayment?.userName }}</p>
-                <p class="text-sm mb-2"><span class="font-medium">Service:</span> {{ selectedPayment?.service }}</p>
-                <p class="text-sm mb-2"><span class="font-medium">Amount:</span> ₱{{ selectedPayment?.totalAmount ? selectedPayment.totalAmount.toLocaleString() : '0.00' }}</p>
-                <p class="text-sm mb-2"><span class="font-medium">Payment Method:</span> {{ selectedPayment?.paymentMethod }}</p>
-                <p class="text-sm"><span class="font-medium">Date:</span> {{ formatDate(selectedPayment?.paidAt) }}</p>
+              <h4 class="mb-3 text-sm font-medium text-gray-500">Order Details</h4>
+              <div class="rounded-xl bg-gray-50 p-4 sm:p-5">
+                <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span class="text-sm font-medium text-gray-500">Order ID:</span>
+                  <span class="text-sm font-semibold text-gray-900">#{{ selectedPayment?.id.substring(0, 8) }}</span>
+                </div>
+                <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span class="text-sm font-medium text-gray-500">Customer:</span>
+                  <span class="text-sm font-semibold text-gray-900 truncate max-w-[150px]">{{ selectedPayment?.userName }}</span>
+                </div>
+                <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span class="text-sm font-medium text-gray-500">Service:</span>
+                  <span class="text-sm font-semibold text-gray-900 truncate max-w-[150px]">{{ selectedPayment?.service }}</span>
+                </div>
+                <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span class="text-sm font-medium text-gray-500">Amount:</span>
+                  <span class="text-sm font-semibold text-gray-900">₱{{ selectedPayment?.totalAmount ? selectedPayment.totalAmount.toLocaleString() : '0.00' }}</span>
+                </div>
+                <div class="mb-3 flex items-center justify-between border-b border-gray-100 pb-2">
+                  <span class="text-sm font-medium text-gray-500">Payment Method:</span>
+                  <span class="text-sm font-semibold text-gray-900 truncate max-w-[150px]">{{ selectedPayment?.paymentMethod }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-gray-500">Date:</span>
+                  <span class="text-sm font-semibold text-gray-900">{{ formatDate(selectedPayment?.paidAt) }}</span>
+                </div>
               </div>
               
-              <div class="mt-4">
-                <h4 class="text-sm font-medium text-gray-500 mb-2">Verification Actions</h4>
-                <div class="flex space-x-3">
+              <div class="mt-5">
+                <h4 class="mb-3 text-sm font-medium text-gray-500">Verification Actions</h4>
+                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                   <button 
                     @click="approvePayment(selectedPayment)" 
-                    class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                    class="flex-1 inline-flex items-center justify-center rounded-lg border border-transparent bg-grab-green px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition-colors duration-150 hover:bg-grab-green-dark"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5 h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                     </svg>
                     Approve Payment
                   </button>
                   <button 
                     @click="rejectPayment(selectedPayment)" 
-                    class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    class="flex-1 inline-flex items-center justify-center rounded-lg border border-transparent bg-rose-500 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition-colors duration-150 hover:bg-rose-600"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-1.5 h-4 sm:h-5 w-4 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     Reject Payment
@@ -397,28 +463,28 @@
             </div>
             
             <div>
-              <h4 class="text-sm font-medium text-gray-500 mb-2">Payment Proof Image</h4>
-              <div class="bg-gray-50 p-4 rounded-lg flex items-center justify-center h-64">
+              <h4 class="mb-3 text-sm font-medium text-gray-500">Payment Proof Image</h4>
+              <div class="flex h-56 sm:h-72 items-center justify-center rounded-xl bg-gray-50 p-4 sm:p-5">
                 <img 
                   v-if="selectedPayment?.proofOfPayment" 
                   :src="selectedPayment.proofOfPayment" 
                   alt="Payment Proof" 
-                  class="max-h-full max-w-full object-contain rounded-md shadow-sm"
+                  class="max-h-full max-w-full rounded-lg object-contain shadow-sm"
                 />
                 <div v-else class="text-center text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 sm:h-16 w-12 sm:w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <p class="mt-2">No payment proof available</p>
+                  <p class="mt-3 text-sm sm:text-base">No payment proof available</p>
                 </div>
               </div>
               
-              <div class="mt-4">
-                <h4 class="text-sm font-medium text-gray-500 mb-2">Notes</h4>
+              <div class="mt-5">
+                <h4 class="mb-3 text-sm font-medium text-gray-500">Notes</h4>
                 <textarea 
                   v-model="verificationNotes" 
                   rows="3" 
-                  class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-md" 
+                  class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-grab-green focus:ring-grab-green sm:text-sm" 
                   placeholder="Add verification notes here..."
                 ></textarea>
               </div>
@@ -469,13 +535,13 @@ const pendingRefundsCount = ref(0);
 const getStatusClass = (status) => {
   switch (status.toLowerCase()) {
     case 'completed':
-      return 'bg-green-100 text-green-800';
+      return 'bg-emerald-100 text-emerald-800';
     case 'pending':
-      return 'bg-yellow-100 text-yellow-800';
+      return 'bg-amber-100 text-amber-800';
     case 'in progress':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-sky-100 text-sky-800';
     case 'cancelled':
-      return 'bg-red-100 text-red-800';
+      return 'bg-rose-100 text-rose-800';
     default:
       return 'bg-gray-100 text-gray-800';
   }
@@ -783,12 +849,42 @@ onBeforeMount(() => {
 // No need for additional onMounted since we're already fetching data in onBeforeMount
 </script>
 
-<style scoped>
-.max-h-full {
-  max-height: 100%;
+<style>
+:root {
+  --grab-green: #00B14F;
+  --grab-green-dark: #009a44;
+  --grab-green-light: #e6f7ee;
 }
 
-/* Add animation for skeleton loaders */
+.bg-grab-green {
+  background-color: var(--grab-green);
+}
+
+.bg-grab-green-dark {
+  background-color: var(--grab-green-dark);
+}
+
+.bg-grab-green-light {
+  background-color: var(--grab-green-light);
+}
+
+.text-grab-green {
+  color: var(--grab-green);
+}
+
+.focus\:border-grab-green:focus {
+  border-color: var(--grab-green);
+}
+
+.focus\:ring-grab-green:focus {
+  --tw-ring-color: var(--grab-green);
+}
+
+.hover\:bg-grab-green-dark:hover {
+  background-color: var(--grab-green-dark);
+}
+
+/* Animation for skeleton loaders */
 @keyframes pulse {
   0%, 100% {
     opacity: 0.5;
@@ -799,5 +895,64 @@ onBeforeMount(() => {
 }
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Transitions */
+.transition-colors {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Additional responsive styles for small screens */
+@media (max-width: 480px) {
+  .text-2xl {
+    font-size: 1.25rem;
+  }
+  
+  .p-4 {
+    padding: 0.75rem;
+  }
+  
+  .rounded-lg {
+    border-radius: 0.375rem;
+  }
+  
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .text-xs {
+    font-size: 0.7rem;
+  }
+}
+
+/* Ensure text doesn't overflow on small screens */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 640px) {
+  button, 
+  a[role="button"],
+  .router-link {
+    min-height: 2.5rem;
+    min-width: 2.5rem;
+  }
+  
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+}
+
+/* Responsive modal for very small screens */
+@media (max-width: 360px) {
+  .fixed.inset-0.z-50.flex.items-center.justify-center .max-w-3xl {
+    width: 95%;
+    margin: 0 auto;
+  }
 }
 </style>
