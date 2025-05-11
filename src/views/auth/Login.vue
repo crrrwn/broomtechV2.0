@@ -1,35 +1,69 @@
 <template>
   <div class="min-h-screen flex flex-col md:flex-row overflow-hidden">
-    <!-- Left section - Brand/Welcome side with enhanced green background -->
-    <div class="hidden md:flex md:w-1/2 bg-gradient-to-b from-green-500 to-green-400 flex-col items-center justify-center p-10 relative overflow-hidden">
-      <!-- Wave decoration at bottom -->
-      <div class="absolute bottom-0 left-0 w-full">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="text-green-400 opacity-30">
-          <path fill="currentColor" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
+    <!-- Left section - Brand/Welcome side with enhanced design -->
+    <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-green-600 via-green-500 to-green-400 flex-col items-center justify-center p-10 relative overflow-hidden">
+      <!-- Decorative background elements -->
+      <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-10">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="Gradient1" cx="50%" cy="50%" fx="0.441602%" fy="50%" r=".5">
+                <animate attributeName="fx" dur="34s" values="0%;3%;0%" repeatCount="indefinite"></animate>
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"></stop>
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"></stop>
+              </radialGradient>
+              <radialGradient id="Gradient2" cx="50%" cy="50%" fx="2.68147%" fy="50%" r=".5">
+                <animate attributeName="fx" dur="23.5s" values="0%;3%;0%" repeatCount="indefinite"></animate>
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"></stop>
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"></stop>
+              </radialGradient>
+              <radialGradient id="Gradient3" cx="50%" cy="50%" fx="0.836536%" fy="50%" r=".5">
+                <animate attributeName="fx" dur="21.5s" values="0%;3%;0%" repeatCount="indefinite"></animate>
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"></stop>
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"></stop>
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#Gradient1)">
+              <animate attributeName="x" dur="20s" values="25%;0%;25%" repeatCount="indefinite" />
+              <animate attributeName="y" dur="21s" values="0%;25%;0%" repeatCount="indefinite" />
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="17s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#Gradient2)">
+              <animate attributeName="x" dur="23s" values="0%;-25%;0%" repeatCount="indefinite" />
+              <animate attributeName="y" dur="24s" values="25%;-25%;25%" repeatCount="indefinite" />
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="18s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#Gradient3)">
+              <animate attributeName="x" dur="25s" values="-25%;0%;-25%" repeatCount="indefinite" />
+              <animate attributeName="y" dur="26s" values="0%;-25%;0%" repeatCount="indefinite" />
+              <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="19s" repeatCount="indefinite"/>
+            </rect>
+          </svg>
+        </div>
       </div>
       
-      <!-- Decorative elements -->
-      <div class="absolute top-20 left-20 w-16 h-16 border-2 border-green-300 rounded-full opacity-40 animate-pulse-slow"></div>
-      <div class="absolute bottom-32 right-40 w-24 h-24 border border-green-300 rounded-full opacity-30 animate-pulse-medium"></div>
-      <div class="absolute top-1/2 left-1/4 w-8 h-8 border border-green-300 rounded-full opacity-40 animate-pulse-fast"></div>
+      <!-- Floating circles decoration -->
+      <div class="absolute top-20 left-20 w-16 h-16 border-2 border-green-300 rounded-full opacity-40 animate-float-slow"></div>
+      <div class="absolute bottom-32 right-40 w-24 h-24 border border-green-300 rounded-full opacity-30 animate-float-medium"></div>
+      <div class="absolute top-1/2 left-1/4 w-8 h-8 border border-green-300 rounded-full opacity-40 animate-float-fast"></div>
       
-      <!-- Glass card features -->
+      <!-- Enhanced logo -->
       <div class="z-10 text-center max-w-md">
         <div class="flex justify-center mb-8">
           <div class="logo-container">
             <div class="logo-inner">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
               </svg>
             </div>
             <div class="logo-ring"></div>
+            <div class="logo-ring logo-ring-outer"></div>
           </div>
         </div>
-        <h1 class="text-4xl font-bold text-white mb-6">BroomTech</h1>
-        <p class="text-xl text-white mb-10 leading-relaxed">Welcome back! Log in to access your account.</p>
+        <h1 class="text-5xl font-bold text-white mb-6 tracking-tight">BroomTech</h1>
+        <p class="text-xl text-white mb-10 leading-relaxed">Welcome back! Log in to access your account and manage your services.</p>
         
-        <!-- Feature cards similar to the image -->
+        <!-- Enhanced feature cards -->
         <div class="space-y-6">
           <div class="feature-card group">
             <div class="feature-icon-container">
@@ -38,7 +72,7 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-white font-medium text-lg">Secure & Protected</h3>
+              <h3 class="text-white font-medium text-lg">Enterprise-Grade Security</h3>
               <p class="text-green-100">End-to-end encryption for all your data</p>
             </div>
           </div>
@@ -51,7 +85,7 @@
             </div>
             <div>
               <h3 class="text-white font-medium text-lg">Real-time Tracking</h3>
-              <p class="text-green-100">Monitor your deliveries in real-time</p>
+              <p class="text-green-100">Monitor your deliveries with live updates</p>
             </div>
           </div>
           
@@ -62,18 +96,41 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-white font-medium text-lg">24/7 Support</h3>
-              <p class="text-green-100">Our team is always ready to help</p>
+              <h3 class="text-white font-medium text-lg">24/7 Premium Support</h3>
+              <p class="text-green-100">Our team is always ready to help you</p>
             </div>
           </div>
         </div>
       </div>
+      
+      <!-- Bottom wave decoration -->
+      <div class="absolute bottom-0 left-0 w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="text-green-400 opacity-30">
+          <path fill="currentColor" fill-opacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,202.7C672,203,768,181,864,181.3C960,181,1056,203,1152,208C1248,213,1344,203,1392,197.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
+      </div>
     </div>
     
-    <!-- Right section - Form side -->
+    <!-- Right section - Form side with enhanced design -->
     <div class="w-full md:w-1/2 bg-white flex items-center justify-center p-4 md:p-12 relative">
       <!-- Mobile background (only visible on mobile) -->
-      <div class="absolute inset-0 bg-gradient-to-b from-green-500 to-green-400 md:hidden"></div>
+      <div class="absolute inset-0 bg-gradient-to-br from-green-600 via-green-500 to-green-400 md:hidden">
+        <!-- Mobile background pattern -->
+        <div class="absolute inset-0 opacity-10">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <radialGradient id="MobileGradient1" cx="50%" cy="50%" fx="0.441602%" fy="50%" r=".5">
+                <animate attributeName="fx" dur="34s" values="0%;3%;0%" repeatCount="indefinite"></animate>
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.5)"></stop>
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)"></stop>
+              </radialGradient>
+            </defs>
+            <rect x="0" y="0" width="100%" height="100%" fill="url(#MobileGradient1)">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="60s" repeatCount="indefinite"/>
+            </rect>
+          </svg>
+        </div>
+      </div>
       
       <div class="max-w-md w-full space-y-8 relative z-10">
         <!-- Mobile logo (only visible on mobile) -->
@@ -86,20 +143,22 @@
                 </svg>
               </div>
               <div class="logo-ring"></div>
+              <div class="logo-ring logo-ring-outer"></div>
             </div>
           </div>
-          <h1 class="text-2xl font-bold text-white mb-2">BroomTech</h1>
+          <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">BroomTech</h1>
+          <p class="text-white text-sm mb-6 max-w-xs mx-auto">Welcome back! Log in to access your account.</p>
         </div>
         
         <!-- Login header -->
         <div class="text-center">
           <h2 class="text-center text-3xl font-extrabold text-gray-900 md:text-gray-900 tracking-tight">
-            Log in to your account
+            Sign in to your account
           </h2>
           <p class="mt-2 text-center text-sm text-white md:text-gray-600">
             Don't have an account?
             <router-link to="/register" class="text-link">
-              Sign up
+              Create an account
             </router-link>
           </p>
         </div>
@@ -137,6 +196,11 @@
                   class="form-input"
                   placeholder="you@example.com"
                 />
+                <div v-if="email" class="form-validation-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
               </div>
             </div>
 
@@ -181,7 +245,7 @@
               </div>
             </div>
 
-            <!-- Remember me checkbox - FIXED VERSION -->
+            <!-- Remember me checkbox - Enhanced version -->
             <div class="form-group">
               <div class="flex items-center">
                 <label for="remember-me" class="flex items-center cursor-pointer">
@@ -238,7 +302,7 @@
               </div>
             </div>
 
-            <!-- Enhanced Google Sign-In Button -->
+            <!-- Google Sign-In Button Only -->
             <button 
               type="button" 
               @click="signInWithGoogle" 
@@ -262,7 +326,7 @@
             Need help? <a href="#" class="text-link">Contact support</a>
           </p>
           <p class="text-xs text-white md:text-gray-500 mt-4">
-            © 2025 BroomTech
+            © 2025 BroomTech. All rights reserved.
           </p>
         </div>
       </div>
@@ -443,65 +507,59 @@ export default {
 </script>
 
 <style scoped>
-/* Background pattern */
-.bg-dot-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* Pulse animations */
-@keyframes pulse-slow {
+/* Enhanced animations */
+@keyframes float-slow {
   0%, 100% {
     opacity: 0.3;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
   50% {
     opacity: 0.5;
-    transform: scale(1.05);
+    transform: translateY(-15px) scale(1.05);
   }
 }
 
-@keyframes pulse-medium {
+@keyframes float-medium {
   0%, 100% {
     opacity: 0.3;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
   50% {
     opacity: 0.5;
-    transform: scale(1.08);
+    transform: translateY(-10px) scale(1.08);
   }
 }
 
-@keyframes pulse-fast {
+@keyframes float-fast {
   0%, 100% {
     opacity: 0.3;
-    transform: scale(1);
+    transform: translateY(0) scale(1);
   }
   50% {
     opacity: 0.5;
-    transform: scale(1.1);
+    transform: translateY(-5px) scale(1.1);
   }
 }
 
-.animate-pulse-slow {
-  animation: pulse-slow 8s infinite;
+.animate-float-slow {
+  animation: float-slow 8s infinite ease-in-out;
 }
 
-.animate-pulse-medium {
-  animation: pulse-medium 6s infinite;
+.animate-float-medium {
+  animation: float-medium 6s infinite ease-in-out;
 }
 
-.animate-pulse-fast {
-  animation: pulse-fast 4s infinite;
+.animate-float-fast {
+  animation: float-fast 4s infinite ease-in-out;
 }
 
 /* Enhanced logo */
 .logo-container {
-  @apply relative flex items-center justify-center h-20 w-20;
+  @apply relative flex items-center justify-center h-24 w-24;
 }
 
 .logo-inner {
-  @apply bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center h-16 w-16 shadow-lg z-10;
+  @apply bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center h-20 w-20 shadow-lg z-10;
   animation: logo-pulse 3s infinite;
 }
 
@@ -510,12 +568,19 @@ export default {
   animation: logo-ring 3s infinite;
 }
 
+.logo-ring-outer {
+  @apply border-green-200;
+  animation: logo-ring-outer 3s infinite;
+}
+
 @keyframes logo-pulse {
   0%, 100% {
     transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
   }
   50% {
     transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
   }
 }
 
@@ -530,28 +595,39 @@ export default {
   }
 }
 
-/* Feature cards */
+@keyframes logo-ring-outer {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Enhanced feature cards */
 .feature-card {
-  @apply flex items-center p-4 bg-white/20 backdrop-blur-sm rounded-xl shadow-sm transition-all duration-300 hover:bg-white/30 hover:shadow-md;
+  @apply flex items-center p-4 bg-white/20 backdrop-blur-sm rounded-xl shadow-sm transition-all duration-300 hover:bg-white/30 hover:shadow-md hover:translate-x-1;
 }
 
 .feature-icon-container {
   @apply mr-4 bg-white p-2.5 rounded-full group-hover:bg-green-50 transition-colors duration-300;
 }
 
-/* Glass card effect */
+/* Enhanced glass card effect */
 .glass-card {
-  @apply bg-white/90 backdrop-blur-sm py-8 px-6 sm:px-8 shadow-xl border border-gray-100 rounded-2xl transition-all duration-500;
+  @apply bg-white/95 backdrop-blur-sm py-8 px-6 sm:px-8 shadow-xl border border-gray-100 rounded-2xl transition-all duration-500;
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1), 0 4px 16px -4px rgba(0, 0, 0, 0.05);
 }
 
 .glass-card:hover {
-  @apply bg-white/95;
-  box-shadow: 0 20px 60px -15px rgba(4, 92, 29, 0.806), 0 8px 24px -6px rgba(0, 0, 0, 0.06);
+  @apply bg-white;
+  box-shadow: 0 20px 60px -15px rgba(4, 128, 37, 0.851), 0 8px 24px -6px rgba(0, 0, 0, 0.06);
   transform: translateY(-2px);
 }
 
-/* Form styling */
+/* Enhanced form styling */
 .form-group {
   @apply space-y-2;
 }
@@ -566,17 +642,22 @@ export default {
 
 .form-input:focus {
   @apply border-green-500 ring-green-200;
+  transform: translateY(-1px);
 }
 
 .form-icon {
   @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none;
 }
 
+.form-validation-icon {
+  @apply absolute inset-y-0 right-0 pr-10 flex items-center pointer-events-none;
+}
+
 .password-toggle {
   @apply absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-green-600 focus:outline-none transition-colors duration-300;
 }
 
-/* Fixed Checkbox styling */
+/* Enhanced Checkbox styling */
 .checkbox-wrapper {
   position: relative;
   width: 20px;
@@ -606,7 +687,7 @@ input:focus ~ .checkbox-ui {
   box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
 }
 
-/* Button styling */
+/* Enhanced button styling */
 .premium-button {
   @apply relative flex justify-center py-3.5 px-4 border border-transparent text-sm font-medium rounded-xl text-white transition-all duration-300 transform hover:scale-[1.02] hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed w-full;
   background: linear-gradient(135deg, #014f1d, #16a34a);
@@ -628,12 +709,12 @@ input:focus ~ .checkbox-ui {
   z-index: 10;
 }
 
-/* Social button styling */
+/* Enhanced social button styling */
 .social-button {
   @apply flex items-center justify-center py-3.5 px-4 border border-gray-300 rounded-xl shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed w-full;
 }
 
-/* Wave loader */
+/* Enhanced wave loader */
 .wave-loader {
   @apply flex space-x-1 items-center;
 }
@@ -664,7 +745,7 @@ input:focus ~ .checkbox-ui {
   }
 }
 
-/* Text link */
+/* Enhanced text link */
 .text-link {
   @apply font-medium text-green-600 hover:text-green-700 transition-colors duration-300 relative;
 }
@@ -678,13 +759,13 @@ input:focus ~ .checkbox-ui {
   @apply w-full opacity-70;
 }
 
-/* Error message styling */
+/* Enhanced error message styling */
 .error-message {
   @apply bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl shadow-sm;
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Animations */
+/* Enhanced animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -696,7 +777,7 @@ input:focus ~ .checkbox-ui {
   }
 }
 
-/* Responsive adjustments */
+/* Enhanced responsive adjustments */
 @media (max-width: 640px) {
   .form-input {
     @apply py-3;
@@ -704,6 +785,14 @@ input:focus ~ .checkbox-ui {
 
   .premium-button, .social-button {
     @apply py-3;
+  }
+  
+  .logo-container {
+    @apply h-20 w-20;
+  }
+  
+  .logo-inner {
+    @apply h-16 w-16;
   }
 }
 
@@ -714,6 +803,14 @@ input:focus ~ .checkbox-ui {
 
   .premium-button, .social-button {
     @apply py-2.5 text-xs;
+  }
+  
+  .logo-container {
+    @apply h-16 w-16;
+  }
+  
+  .logo-inner {
+    @apply h-12 w-12;
   }
 }
 </style>

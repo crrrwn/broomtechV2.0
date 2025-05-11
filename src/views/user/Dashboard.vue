@@ -1,37 +1,18 @@
 <template>
-  <div :class="[isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-green-50 to-emerald-50', 'min-h-screen transition-colors duration-300 pb-16']">
-    <!-- Theme Toggle -->
-    <div class="fixed top-6 right-6 z-50">
-      <button 
-        @click="toggleDarkMode" 
-        class="p-3 rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 flex items-center justify-center"
-        :class="isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-800 hover:bg-gray-100'"
-      >
-        <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-        </svg>
-      </button>
-    </div>
-
+  <div class="bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen transition-colors duration-300 pb-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12">
       <!-- Dashboard Header -->
       <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-12">
         <div class="mb-6 md:mb-0">
-          <h1 :class="[isDarkMode ? 'text-white' : 'text-green-900', 'text-3xl sm:text-4xl font-bold mb-2 transition-colors duration-300']">Dashboard</h1>
-          <p :class="[isDarkMode ? 'text-gray-300' : 'text-green-600', 'text-lg transition-colors duration-300']">
+          <h1 class="text-green-900 text-3xl sm:text-4xl font-bold mb-2 transition-colors duration-300">Dashboard</h1>
+          <p class="text-green-600 text-lg transition-colors duration-300">
             Manage your services and track your orders
           </p>
         </div>
         <div class="flex flex-wrap gap-3">
           <router-link 
             to="/user/book-service" 
-            :class="[
-              isDarkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-green-600 hover:bg-green-700 text-white',
-              'inline-flex items-center px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 text-sm font-medium'
-            ]"
+            class="bg-green-600 hover:bg-green-700 text-white inline-flex items-center px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 text-sm font-medium"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -40,10 +21,7 @@
           </router-link>
           <router-link 
             to="/user/order-history" 
-            :class="[
-              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-white hover:bg-gray-50 text-gray-700',
-              'inline-flex items-center px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 text-sm font-medium'
-            ]"
+            class="bg-white hover:bg-gray-50 text-gray-700 inline-flex items-center px-5 py-2.5 rounded-xl shadow-md transition-all duration-200 text-sm font-medium"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -63,18 +41,13 @@
               <div></div>
               <div></div>
             </div>
-            <p :class="[isDarkMode ? 'text-gray-300' : 'text-green-600', 'mt-4 text-center font-medium']">Loading your dashboard...</p>
+            <p class="text-green-600 mt-4 text-center font-medium">Loading your dashboard...</p>
           </div>
         </div>
         
         <div v-else>
           <!-- Welcome Card with Animated Background -->
-          <div 
-            :class="[
-              isDarkMode ? 'from-green-800 to-emerald-900' : 'from-green-500 to-emerald-600',
-              'bg-gradient-to-r overflow-hidden shadow-2xl rounded-3xl mb-10 text-white relative'
-            ]"
-          >
+          <div class="bg-gradient-to-r from-green-500 to-emerald-600 overflow-hidden shadow-2xl rounded-3xl mb-10 text-white relative">
             <!-- Animated Circles Background -->
             <div class="absolute inset-0 overflow-hidden">
               <div class="circle-1"></div>
@@ -122,41 +95,21 @@
           <!-- Stats Cards -->
           <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
             <!-- Total Orders Card -->
-            <div 
-              :class="[
-                isDarkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-green-100 hover:bg-gray-50',
-                'overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1'
-              ]"
-            >
+            <div class="bg-white border-green-100 hover:bg-gray-50 overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1">
               <div class="px-6 py-8">
                 <div class="flex items-center">
-                  <div 
-                    :class="[
-                      isDarkMode ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-600',
-                      'flex-shrink-0 rounded-2xl p-4 transition-colors duration-300'
-                    ]"
-                  >
+                  <div class="bg-green-100 text-green-600 flex-shrink-0 rounded-2xl p-4 transition-colors duration-300">
                     <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                     </svg>
                   </div>
                   <div class="ml-5 w-0 flex-1">
                     <dl>
-                      <dt 
-                        :class="[
-                          isDarkMode ? 'text-green-400' : 'text-green-600',
-                          'text-sm font-medium truncate transition-colors duration-300'
-                        ]"
-                      >
+                      <dt class="text-green-600 text-sm font-medium truncate transition-colors duration-300">
                         Total Orders
                       </dt>
                       <dd>
-                        <div 
-                          :class="[
-                            isDarkMode ? 'text-white' : 'text-gray-900',
-                            'text-4xl font-bold transition-colors duration-300'
-                          ]"
-                        >
+                        <div class="text-gray-900 text-4xl font-bold transition-colors duration-300">
                           {{ stats.totalOrders }}
                         </div>
                       </dd>
@@ -164,20 +117,9 @@
                   </div>
                 </div>
               </div>
-              <div 
-                :class="[
-                  isDarkMode ? 'bg-gray-700/50' : 'bg-green-50',
-                  'px-6 py-4 transition-colors duration-300'
-                ]"
-              >
+              <div class="bg-green-50 px-6 py-4 transition-colors duration-300">
                 <div class="text-sm">
-                  <router-link 
-                    to="/user/order-history" 
-                    :class="[
-                      isDarkMode ? 'text-green-400 hover:text-green-300' : 'text-green-600 hover:text-green-700',
-                      'font-medium flex items-center transition-colors duration-300'
-                    ]"
-                  >
+                  <router-link to="/user/order-history" class="text-green-600 hover:text-green-700 font-medium flex items-center transition-colors duration-300">
                     View all orders
                     <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -188,41 +130,21 @@
             </div>
             
             <!-- Active Orders Card -->
-            <div 
-              :class="[
-                isDarkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-green-100 hover:bg-gray-50',
-                'overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1'
-              ]"
-            >
+            <div class="bg-white border-green-100 hover:bg-gray-50 overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1">
               <div class="px-6 py-8">
                 <div class="flex items-center">
-                  <div 
-                    :class="[
-                      isDarkMode ? 'bg-emerald-900/50 text-emerald-400' : 'bg-emerald-100 text-emerald-600',
-                      'flex-shrink-0 rounded-2xl p-4 transition-colors duration-300'
-                    ]"
-                  >
+                  <div class="bg-emerald-100 text-emerald-600 flex-shrink-0 rounded-2xl p-4 transition-colors duration-300">
                     <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div class="ml-5 w-0 flex-1">
                     <dl>
-                      <dt 
-                        :class="[
-                          isDarkMode ? 'text-emerald-400' : 'text-emerald-600',
-                          'text-sm font-medium truncate transition-colors duration-300'
-                        ]"
-                      >
+                      <dt class="text-emerald-600 text-sm font-medium truncate transition-colors duration-300">
                         Active Orders
                       </dt>
                       <dd>
-                        <div 
-                          :class="[
-                            isDarkMode ? 'text-white' : 'text-gray-900',
-                            'text-4xl font-bold transition-colors duration-300'
-                          ]"
-                        >
+                        <div class="text-gray-900 text-4xl font-bold transition-colors duration-300">
                           {{ stats.activeOrders }}
                         </div>
                       </dd>
@@ -230,20 +152,9 @@
                   </div>
                 </div>
               </div>
-              <div 
-                :class="[
-                  isDarkMode ? 'bg-gray-700/50' : 'bg-emerald-50',
-                  'px-6 py-4 transition-colors duration-300'
-                ]"
-              >
+              <div class="bg-emerald-50 px-6 py-4 transition-colors duration-300">
                 <div class="text-sm">
-                  <router-link 
-                    to="/user/order-history" 
-                    :class="[
-                      isDarkMode ? 'text-emerald-400 hover:text-emerald-300' : 'text-emerald-600 hover:text-emerald-700',
-                      'font-medium flex items-center transition-colors duration-300'
-                    ]"
-                  >
+                  <router-link to="/user/order-history" class="text-emerald-600 hover:text-emerald-700 font-medium flex items-center transition-colors duration-300">
                     Track active orders
                     <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
@@ -254,41 +165,21 @@
             </div>
             
             <!-- Total Spent Card -->
-            <div 
-              :class="[
-                isDarkMode ? 'bg-gray-800 border-gray-700 hover:bg-gray-750' : 'bg-white border-green-100 hover:bg-gray-50',
-                'overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1'
-              ]"
-            >
+            <div class="bg-white border-green-100 hover:bg-gray-50 overflow-hidden shadow-xl rounded-3xl transition-all duration-300 hover:shadow-2xl border transform hover:-translate-y-1">
               <div class="px-6 py-8">
                 <div class="flex items-center">
-                  <div 
-                    :class="[
-                      isDarkMode ? 'bg-teal-900/50 text-teal-400' : 'bg-teal-100 text-teal-600',
-                      'flex-shrink-0 rounded-2xl p-4 transition-colors duration-300'
-                    ]"
-                  >
+                  <div class="bg-teal-100 text-teal-600 flex-shrink-0 rounded-2xl p-4 transition-colors duration-300">
                     <svg class="h-10 w-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div class="ml-5 w-0 flex-1">
                     <dl>
-                      <dt 
-                        :class="[
-                          isDarkMode ? 'text-teal-400' : 'text-teal-600',
-                          'text-sm font-medium truncate transition-colors duration-300'
-                        ]"
-                      >
+                      <dt class="text-teal-600 text-sm font-medium truncate transition-colors duration-300">
                         Total Spent
                       </dt>
                       <dd>
-                        <div 
-                          :class="[
-                            isDarkMode ? 'text-white' : 'text-gray-900',
-                            'text-4xl font-bold transition-colors duration-300'
-                          ]"
-                        >
+                        <div class="text-gray-900 text-4xl font-bold transition-colors duration-300">
                           ₱{{ stats.totalSpent.toFixed(2) }}
                         </div>
                       </dd>
@@ -296,19 +187,9 @@
                   </div>
                 </div>
               </div>
-              <div 
-                :class="[
-                  isDarkMode ? 'bg-gray-700/50' : 'bg-teal-50',
-                  'px-6 py-4 transition-colors duration-300'
-                ]"
-              >
+              <div class="bg-teal-50 px-6 py-4 transition-colors duration-300">
                 <div class="text-sm">
-                  <span 
-                    :class="[
-                      isDarkMode ? 'text-teal-400' : 'text-teal-600',
-                      'font-medium transition-colors duration-300'
-                    ]"
-                  >
+                  <span class="text-teal-600 font-medium transition-colors duration-300">
                     Lifetime spending
                   </span>
                 </div>
@@ -319,20 +200,12 @@
           <!-- Recent Orders -->
           <div class="mt-8">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-              <h2 
-                :class="[
-                  isDarkMode ? 'text-white' : 'text-green-900',
-                  'text-2xl sm:text-3xl font-bold mb-4 sm:mb-0 transition-colors duration-300'
-                ]"
-              >
+              <h2 class="text-green-900 text-2xl sm:text-3xl font-bold mb-4 sm:mb-0 transition-colors duration-300">
                 Recent Orders
               </h2>
               <router-link 
                 to="/user/order-history" 
-                :class="[
-                  isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-white hover:bg-gray-50 text-green-600',
-                  'text-sm font-medium flex items-center py-2.5 px-5 rounded-xl shadow-md hover:shadow transition-all duration-200'
-                ]"
+                class="bg-white hover:bg-gray-50 text-green-600 text-sm font-medium flex items-center py-2.5 px-5 rounded-xl shadow-md hover:shadow transition-all duration-200"
               >
                 View all orders
                 <svg class="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -343,19 +216,12 @@
             
             <div 
               v-if="recentOrders.length === 0" 
-              :class="[
-                isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-green-100',
-                'overflow-hidden shadow-xl rounded-3xl border transition-colors duration-300'
-              ]"
+              class="bg-white border-green-100 overflow-hidden shadow-xl rounded-3xl border transition-colors duration-300"
             >
               <div class="px-6 py-16 text-center">
                 <div class="flex justify-center">
                   <div class="empty-orders-icon">
-                    <svg 
-                      :class="[
-                        isDarkMode ? 'text-green-700' : 'text-green-300',
-                        'h-20 w-20 transition-colors duration-300'
-                      ]" 
+                    <svg class="text-green-300 h-20 w-20 transition-colors duration-300" 
                       xmlns="http://www.w3.org/2000/svg" 
                       fill="none" 
                       viewBox="0 0 24 24" 
@@ -365,28 +231,15 @@
                     </svg>
                   </div>
                 </div>
-                <p 
-                  :class="[
-                    isDarkMode ? 'text-gray-200' : 'text-green-800',
-                    'mt-6 text-xl font-medium transition-colors duration-300'
-                  ]"
-                >
+                <p class="text-green-800 mt-6 text-xl font-medium transition-colors duration-300">
                   You don't have any recent orders.
                 </p>
-                <p 
-                  :class="[
-                    isDarkMode ? 'text-gray-400' : 'text-green-600',
-                    'mt-2 transition-colors duration-300 max-w-md mx-auto'
-                  ]"
-                >
+                <p class="text-green-600 mt-2 transition-colors duration-300 max-w-md mx-auto">
                   Ready to get started? Book your first service now and experience hassle-free cleaning.
                 </p>
                 <router-link 
                   to="/user/book-service" 
-                  :class="[
-                    isDarkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-600 hover:bg-green-700',
-                    'mt-8 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200'
-                  ]"
+                  class="bg-green-600 hover:bg-green-700 mt-8 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200"
                 >
                   Book a Service
                 </router-link>
@@ -395,72 +248,37 @@
             
             <div 
               v-else 
-              :class="[
-                isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-green-100',
-                'shadow-xl overflow-hidden rounded-3xl border transition-colors duration-300'
-              ]"
+              class="bg-white border-green-100 shadow-xl overflow-hidden rounded-3xl border transition-colors duration-300"
             >
-              <ul 
-                :class="[
-                  isDarkMode ? 'divide-gray-700' : 'divide-green-100',
-                  'divide-y transition-colors duration-300'
-                ]"
-              >
+              <ul class="divide-green-100 divide-y transition-colors duration-300">
                 <li 
                   v-for="order in recentOrders" 
                   :key="order.id" 
-                  :class="[
-                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-green-50',
-                    'transition-all duration-200'
-                  ]"
+                  class="hover:bg-green-50 transition-all duration-200"
                 >
                   <div class="block cursor-pointer" @click="openTrackingModal(order)">
                     <div class="px-6 py-6">
                       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center space-x-3 mb-2 sm:mb-0">
-                          <p 
-                            :class="[
-                              isDarkMode ? 'text-green-400' : 'text-green-700',
-                              'text-base font-medium truncate transition-colors duration-300'
-                            ]"
-                          >
+                          <p class="text-green-700 text-base font-medium truncate transition-colors duration-300">
                             {{ order.service }}
                           </p>
                           <div class="flex-shrink-0 flex">
-                            <p 
-                              :class="[
-                                isDarkMode ? darkModeStatusClasses[order.status] || 'bg-gray-600 text-gray-200' : statusClasses[order.status] || 'bg-gray-100 text-gray-800',
-                                'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-300'
-                              ]"
-                            >
+                            <p :class="[statusClasses[order.status] || 'bg-gray-100 text-gray-800', 'px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors duration-300']">
                               {{ formatStatus(order.status) }}
                             </p>
                           </div>
                         </div>
                         <div class="flex-shrink-0 flex">
-                          <p 
-                            :class="[
-                              isDarkMode ? 'text-white' : 'text-gray-900',
-                              'text-base font-medium transition-colors duration-300'
-                            ]"
-                          >
+                          <p class="text-gray-900 text-base font-medium transition-colors duration-300">
                             ₱{{ order.totalAmount.toFixed(2) }}
                           </p>
                         </div>
                       </div>
                       <div class="mt-3 sm:flex sm:justify-between">
                         <div class="sm:flex">
-                          <p 
-                            :class="[
-                              isDarkMode ? 'text-gray-400' : 'text-gray-500',
-                              'flex items-center text-sm transition-colors duration-300'
-                            ]"
-                          >
-                            <svg 
-                              :class="[
-                                isDarkMode ? 'text-green-500' : 'text-green-400',
-                                'flex-shrink-0 mr-1.5 h-5 w-5 transition-colors duration-300'
-                              ]" 
+                          <p class="text-gray-500 flex items-center text-sm transition-colors duration-300">
+                            <svg class="text-green-400 flex-shrink-0 mr-1.5 h-5 w-5 transition-colors duration-300" 
                               xmlns="http://www.w3.org/2000/svg" 
                               viewBox="0 0 20 20" 
                               fill="currentColor"
@@ -471,18 +289,14 @@
                           </p>
                         </div>
                         <div class="mt-2 flex items-center text-sm sm:mt-0">
-                          <svg 
-                            :class="[
-                              isDarkMode ? 'text-green-500' : 'text-green-400',
-                              'flex-shrink-0 mr-1.5 h-5 w-5 transition-colors duration-300'
-                            ]" 
+                          <svg class="text-green-400 flex-shrink-0 mr-1.5 h-5 w-5 transition-colors duration-300" 
                             xmlns="http://www.w3.org/2000/svg" 
                             viewBox="0 0 20 20" 
                             fill="currentColor"
                           >
                             <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
                           </svg>
-                          <p :class="[isDarkMode ? 'text-gray-400' : 'text-gray-500', 'transition-colors duration-300']">
+                          <p class="text-gray-500 transition-colors duration-300">
                             {{ formatDate(order.createdAt) }}
                           </p>
                         </div>
@@ -501,7 +315,7 @@
     <TrackingModal 
       :show="showTrackingModal"
       :order="selectedOrder"
-      :dark-mode="isDarkMode"
+      :dark-mode="false"
       @close="closeTrackingModal"
       @order-cancelled="handleOrderCancelled"
     />
@@ -531,21 +345,6 @@ const stats = ref({
   totalSpent: 0
 });
 
-// Dark mode state
-const isDarkMode = ref(false);
-
-// Check for user preference on initial load
-onMounted(() => {
-  const savedMode = localStorage.getItem('darkMode');
-  isDarkMode.value = savedMode === 'true';
-});
-
-// Toggle dark mode
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value;
-  localStorage.setItem('darkMode', isDarkMode.value);
-};
-
 const userName = computed(() => {
   return authStore.user?.displayName || 'User';
 });
@@ -557,15 +356,6 @@ const statusClasses = {
   'in_progress': 'bg-green-100 text-green-800',
   'completed': 'bg-emerald-100 text-emerald-800',
   'cancelled': 'bg-red-100 text-red-800'
-};
-
-// Status classes for dark mode
-const darkModeStatusClasses = {
-  'pending': 'bg-yellow-900 text-yellow-300',
-  'assigned': 'bg-blue-900 text-blue-300',
-  'in_progress': 'bg-green-900 text-green-300',
-  'completed': 'bg-emerald-900 text-emerald-300',
-  'cancelled': 'bg-red-900 text-red-300'
 };
 
 const formatStatus = (status) => {
@@ -670,53 +460,61 @@ const fetchDashboardData = async () => {
     );
     
     // Set up a real-time listener for bookings
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      console.log('Fetched bookings:', querySnapshot.size);
-      
-      // Sort the results in memory instead of using orderBy
-      const allOrders = querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          // Ensure numerical values
-          amount: Number(data.amount) || 0,
-          additionalFees: Number(data.additionalFees) || 0,
-          totalAmount: Number(data.totalAmount) || 0
+    const unsubscribeRef = ref(null);
+
+    const subscribe = () => {
+      unsubscribeRef.value = onSnapshot(q, (querySnapshot) => {
+        console.log('Fetched bookings:', querySnapshot.size);
+        
+        // Sort the results in memory instead of using orderBy
+        const allOrders = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            ...data,
+            // Ensure numerical values
+            amount: Number(data.amount) || 0,
+            additionalFees: Number(data.additionalFees) || 0,
+            totalAmount: Number(data.totalAmount) || 0
+          };
+        });
+        
+        // Sort by createdAt in descending order
+        allOrders.sort((a, b) => {
+          const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+          const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          return dateB - dateA;
+        });
+        
+        // Take only the 5 most recent orders
+        recentOrders.value = allOrders.slice(0, 5);
+        
+        // Calculate stats
+        stats.value = {
+          totalOrders: allOrders.length,
+          activeOrders: allOrders.filter(booking => 
+            ['pending', 'assigned', 'in_progress'].includes(booking.status)
+          ).length,
+          totalSpent: allOrders
+            .filter(booking => booking.status === 'completed')
+            .reduce((total, booking) => total + (Number(booking.totalAmount) || 0), 0)
         };
+        
+        console.log('Updated stats:', stats.value);
+        loading.value = false;
+      }, (error) => {
+        console.error('Error fetching dashboard data:', error);
+        loading.value = false;
       });
-      
-      // Sort by createdAt in descending order
-      allOrders.sort((a, b) => {
-        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
-        return dateB - dateA;
-      });
-      
-      // Take only the 5 most recent orders
-      recentOrders.value = allOrders.slice(0, 5);
-      
-      // Calculate stats
-      stats.value = {
-        totalOrders: allOrders.length,
-        activeOrders: allOrders.filter(booking => 
-          ['pending', 'assigned', 'in_progress'].includes(booking.status)
-        ).length,
-        totalSpent: allOrders
-          .filter(booking => booking.status === 'completed')
-          .reduce((total, booking) => total + (Number(booking.totalAmount) || 0), 0)
-      };
-      
-      console.log('Updated stats:', stats.value);
-      loading.value = false;
-    }, (error) => {
-      console.error('Error fetching dashboard data:', error);
-      loading.value = false;
-    });
+    };
+
+    subscribe();
     
     // Clean up the listener when component is unmounted
     onUnmounted(() => {
-      unsubscribe();
+      if (unsubscribeRef.value) {
+        unsubscribeRef.value();
+      }
     });
     
   } catch (error) {
@@ -939,16 +737,5 @@ watch(() => authStore.user, (newUser) => {
     width: 10px;
     height: 10px;
   }
-}
-
-/* Dark mode specific styles */
-:deep(.dark-mode) {
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-/* Custom bg-gray-750 for dark mode hover states */
-.bg-gray-750 {
-  background-color: #2d3748;
 }
 </style>
