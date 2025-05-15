@@ -2,8 +2,10 @@ import { createRouter, createWebHistory } from "vue-router"
 import { auth } from "../firebase/config"
 import { useAuthStore } from "../stores/auth"
 
-// Lazy loading routes
-const Home = () => import("../views/Home.vue")
+// Import Home component directly to ensure it loads immediately
+import Home from "../views/Home.vue"
+
+// Lazy loading for other views
 const Login = () => import("../views/auth/Login.vue")
 const Register = () => import("../views/auth/Register.vue")
 const VerifyEmail = () => import("../views/auth/VerifyEmail.vue")
@@ -38,7 +40,7 @@ const routes = [
   {
     path: "/",
     name: "Home",
-    component: Home,
+    component: Home, // Using the directly imported component
     meta: { requiresAuth: false },
   },
   {
@@ -127,7 +129,7 @@ const routes = [
     path: "/driver/register",
     name: "DriverRegistration",
     component: DriverRegistration,
-    meta: { requiresAuth: false }, // Changed to false to allow anyone to register
+    meta: { requiresAuth: false },
   },
   {
     path: "/driver/tasks",
@@ -142,7 +144,7 @@ const routes = [
     meta: { requiresAuth: true, role: "driver" },
   },
 
-  // Admin routes
+  // Admin extended routes
   {
     path: "/admin/users",
     name: "AdminUsers",
@@ -192,45 +194,37 @@ const router = createRouter({
   routes,
 })
 
+// Simplify the router guard to reduce initial loading delay
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const requiredRole = to.meta.role
-
-  // Wait for auth initialization if it's still loading
+  
+  // Skip auth check for non-protected routes to improve initial load time
+  if (!requiresAuth) {
+    return next()
+  }
+  
+  // Only initialize auth if needed
   if (authStore.isLoading) {
-    console.log("Auth is still loading, waiting for initialization...")
     await authStore.initAuth()
   }
 
-  console.log("Navigation guard - Current user role:", authStore.userRole)
-  console.log("Navigation guard - Required role:", requiredRole)
-  console.log("Navigation guard - Requires auth:", requiresAuth)
-  console.log("Navigation guard - Current user:", auth.currentUser?.uid)
+  const currentUser = auth.currentUser
+  const userRole = authStore.userRole
+  const requiredRole = to.meta.role
 
-  if (requiresAuth && !auth.currentUser) {
-    console.log("No authenticated user, redirecting to login")
-    next("/login")
-  } else if (requiresAuth && requiredRole && authStore.userRole !== requiredRole) {
-    console.log("User role doesn't match required role")
-    // Redirect based on user role
-    if (authStore.userRole === "user") {
-      console.log("Redirecting to user dashboard")
-      next("/user")
-    } else if (authStore.userRole === "driver") {
-      console.log("Redirecting to driver dashboard")
-      next("/driver")
-    } else if (authStore.userRole === "admin") {
-      console.log("Redirecting to admin dashboard")
-      next("/admin")
-    } else {
-      console.log("No role found, redirecting to login")
-      next("/login")
-    }
-  } else {
-    console.log("Navigation allowed to:", to.path)
-    next()
+  if (!currentUser) {
+    return next("/login")
   }
+
+  if (requiredRole && userRole !== requiredRole) {
+    if (userRole === "user") return next("/user")
+    if (userRole === "driver") return next("/driver")
+    if (userRole === "admin") return next("/admin")
+    return next("/login")
+  }
+
+  return next()
 })
 
 export default router

@@ -11,6 +11,9 @@ import { doc, getDoc, setDoc } from "firebase/firestore"
 import { onAuthStateChanged } from "firebase/auth"
 import { watch } from "vue"
 
+// Cache for user roles and profiles to avoid repeated Firestore queries
+const userCache = new Map()
+
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
@@ -58,6 +61,13 @@ export const useAuthStore = defineStore("auth", {
         this.user = userDocData
         this.userRole = "user"
         this.userProfile = userDocData
+        
+        // Cache user data
+        userCache.set(user.uid, {
+          userData: userDocData,
+          role: "user",
+          timestamp: Date.now()
+        })
 
         return user
       } catch (error) {
@@ -68,10 +78,40 @@ export const useAuthStore = defineStore("auth", {
 
     async login(email, password) {
       try {
+        // Preload admin dashboard if email contains admin indicators
+        if (email.includes("admin") || email.includes("administrator")) {
+          // Preload admin dashboard in the background
+          import("../views/admin/Dashboard.vue").catch(() => {
+            // Silently handle import errors
+          })
+        }
+        
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
         const user = userCredential.user
 
-        // Get user data from Firestore
+        // Check cache first
+        const cachedData = userCache.get(user.uid)
+        if (cachedData && (Date.now() - cachedData.timestamp < 3600000)) { // Cache valid for 1 hour
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...cachedData.userData
+          }
+          this.userRole = cachedData.role
+          this.userProfile = cachedData.userData
+          
+          // If admin, preload dashboard
+          if (cachedData.role === "admin") {
+            import("../views/admin/Dashboard.vue").catch(() => {
+              // Silently handle import errors
+            })
+          }
+          
+          return user
+        }
+
+        // Get user data from Firestore if not in cache
         const userDoc = await getDoc(doc(db, "users", user.uid))
 
         if (userDoc.exists()) {
@@ -84,6 +124,20 @@ export const useAuthStore = defineStore("auth", {
           }
           this.userRole = userData.role || "user"
           this.userProfile = userData
+          
+          // Cache the user data
+          userCache.set(user.uid, {
+            userData,
+            role: userData.role || "user",
+            timestamp: Date.now()
+          })
+          
+          // If admin, preload dashboard
+          if (userData.role === "admin") {
+            import("../views/admin/Dashboard.vue").catch(() => {
+              // Silently handle import errors
+            })
+          }
         }
 
         return user
@@ -98,6 +152,20 @@ export const useAuthStore = defineStore("auth", {
         const provider = new GoogleAuthProvider()
         const result = await signInWithPopup(auth, provider)
         const user = result.user
+
+        // Check cache first
+        const cachedData = userCache.get(user.uid)
+        if (cachedData && (Date.now() - cachedData.timestamp < 3600000)) { // Cache valid for 1 hour
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...cachedData.userData
+          }
+          this.userRole = cachedData.role
+          this.userProfile = cachedData.userData
+          return user
+        }
 
         // Check if user exists in Firestore
         const userDoc = await getDoc(doc(db, "users", user.uid))
@@ -116,6 +184,13 @@ export const useAuthStore = defineStore("auth", {
           this.user = userData
           this.userRole = "user"
           this.userProfile = userData
+          
+          // Cache the user data
+          userCache.set(user.uid, {
+            userData,
+            role: "user",
+            timestamp: Date.now()
+          })
         } else {
           const userData = userDoc.data()
           this.user = {
@@ -126,11 +201,94 @@ export const useAuthStore = defineStore("auth", {
           }
           this.userRole = userData.role || "user"
           this.userProfile = userData
+          
+          // Cache the user data
+          userCache.set(user.uid, {
+            userData,
+            role: userData.role || "user",
+            timestamp: Date.now()
+          })
         }
 
         return user
       } catch (error) {
         console.error("Google login error:", error)
+        throw error
+      }
+    },
+
+    // Add specific admin login method for faster admin dashboard loading
+    async loginAdmin(email, password) {
+      try {
+        // Preload admin dashboard immediately
+        const dashboardPromise = import("../views/admin/Dashboard.vue").catch(() => {
+          // Silently handle import errors
+        })
+        
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        const user = userCredential.user
+
+        // Check cache first for faster response
+        const cachedData = userCache.get(user.uid)
+        if (cachedData && cachedData.role === "admin" && (Date.now() - cachedData.timestamp < 3600000)) {
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...cachedData.userData
+          }
+          this.userRole = "admin"
+          this.userProfile = cachedData.userData
+          
+          // Wait for dashboard to load
+          await dashboardPromise
+          
+          return user
+        }
+
+        // Get user data from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid))
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          
+          if (userData.role !== "admin") {
+            await auth.signOut()
+            throw new Error("You do not have admin privileges")
+          }
+          
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...userData,
+          }
+          this.userRole = "admin"
+          this.userProfile = userData
+          
+          // Cache the user data
+          userCache.set(user.uid, {
+            userData,
+            role: "admin",
+            timestamp: Date.now()
+          })
+          
+          // Wait for dashboard to load
+          await dashboardPromise
+          
+          // Preload common admin components
+          setTimeout(() => {
+            import("../views/admin/Users.vue").catch(() => {})
+            import("../views/admin/Drivers.vue").catch(() => {})
+          }, 500)
+        } else {
+          await auth.signOut()
+          throw new Error("Admin account not found")
+        }
+
+        return user
+      } catch (error) {
+        console.error("Admin login error:", error)
         throw error
       }
     },
@@ -143,6 +301,22 @@ export const useAuthStore = defineStore("auth", {
         const currentUser = auth.currentUser
 
         if (currentUser) {
+          // Check cache first for faster response
+          const cachedData = userCache.get(currentUser.uid)
+          if (cachedData && (Date.now() - cachedData.timestamp < 3600000)) {
+            this.user = {
+              id: currentUser.uid,
+              email: currentUser.email,
+              emailVerified: currentUser.emailVerified,
+              ...cachedData.userData
+            }
+            this.userRole = cachedData.role
+            this.userProfile = cachedData.userData
+            this.isLoading = false
+            resolve(this.user)
+            return
+          }
+          
           // User is already authenticated in Firebase, get their data
           this.fetchUserData(currentUser).then(() => {
             this.isLoading = false
@@ -165,9 +339,23 @@ export const useAuthStore = defineStore("auth", {
       })
     },
 
-    // Add this helper method to fetch user data
+    // Optimized helper method to fetch user data
     async fetchUserData(user) {
       try {
+        // Check cache first
+        const cachedData = userCache.get(user.uid)
+        if (cachedData && (Date.now() - cachedData.timestamp < 3600000)) { // Cache valid for 1 hour
+          this.user = {
+            id: user.uid,
+            email: user.email,
+            emailVerified: user.emailVerified,
+            ...cachedData.userData
+          }
+          this.userRole = cachedData.role
+          this.userProfile = cachedData.userData
+          return
+        }
+        
         const userDoc = await getDoc(doc(db, "users", user.uid))
 
         if (userDoc.exists()) {
@@ -180,6 +368,20 @@ export const useAuthStore = defineStore("auth", {
           }
           this.userRole = userData.role || "user"
           this.userProfile = userData
+          
+          // Cache the user data
+          userCache.set(user.uid, {
+            userData,
+            role: userData.role || "user",
+            timestamp: Date.now()
+          })
+          
+          // If admin, preload dashboard
+          if (userData.role === "admin") {
+            import("../views/admin/Dashboard.vue").catch(() => {
+              // Silently handle import errors
+            })
+          }
         } else {
           console.warn("User document not found in Firestore")
           this.clearUser()
@@ -194,6 +396,15 @@ export const useAuthStore = defineStore("auth", {
       this.user = userData
       this.userRole = userData.role || "user"
       this.userProfile = userData
+      
+      // Cache the user data
+      if (userData && userData.id) {
+        userCache.set(userData.id, {
+          userData,
+          role: userData.role || "user",
+          timestamp: Date.now()
+        })
+      }
     },
 
     clearUser() {
@@ -206,16 +417,26 @@ export const useAuthStore = defineStore("auth", {
       if (!this.user?.id) return null
 
       try {
+        const updatedProfile = {
+          ...this.userProfile,
+          ...profileData,
+        }
+        
         await setDoc(
           doc(db, "users", this.user.id),
-          {
-            ...this.userProfile,
-            ...profileData,
-          },
+          updatedProfile,
           { merge: true },
         )
 
-        this.userProfile = { ...this.userProfile, ...profileData }
+        this.userProfile = updatedProfile
+        
+        // Update cache
+        userCache.set(this.user.id, {
+          userData: updatedProfile,
+          role: updatedProfile.role || "user",
+          timestamp: Date.now()
+        })
+        
         return this.userProfile
       } catch (error) {
         console.error("Error updating profile:", error)
@@ -271,7 +492,7 @@ export const useAuthStore = defineStore("auth", {
         onAuthStateChanged(auth, async (user) => {
           if (user) {
             // User is signed in
-            await this.fetchUserData(user.uid)
+            await this.fetchUserData(user)
           } else {
             // User is signed out
             this.user = null
@@ -288,4 +509,3 @@ export const useAuthStore = defineStore("auth", {
     },
   },
 })
-

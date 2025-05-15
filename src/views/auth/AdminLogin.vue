@@ -82,6 +82,8 @@
                         autocomplete="email"
                         required
                         v-model="email"
+                        @focus="preloadAllComponents"
+                        @input="preloadAllComponents"
                         class="block w-full pl-12 pr-4 py-4 bg-white/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm transition-all duration-200 shadow-sm"
                         placeholder="admin@example.com"
                       />
@@ -112,6 +114,8 @@
                         autocomplete="current-password"
                         required
                         v-model="password"
+                        @focus="preloadAllComponents"
+                        @input="preloadAllComponents"
                         class="block w-full pl-12 pr-4 py-4 bg-white/50 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm transition-all duration-200 shadow-sm"
                         placeholder="••••••••"
                       />
@@ -282,12 +286,23 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc } from 'firebase/firestore';
 import { useAuthStore } from '../../stores/auth';
 import { defineComponent } from 'vue';
+
+// List of components to preload
+const ADMIN_COMPONENTS = [
+  'Dashboard',
+  'Users',
+  'Drivers',
+  'Bookings',
+  'Payments',
+  'Reports',
+  'Settings'
+];
 
 export default defineComponent({
   setup() {
@@ -305,6 +320,75 @@ export default defineComponent({
     const loading = ref(false);
     const error = ref('');
     const showPassword = ref(false);
+    
+    // Track which components have been preloaded
+    const preloadedComponents = ref(new Set());
+
+    // Check for cached admin session
+    const checkCachedSession = () => {
+      try {
+        const cachedAdmin = localStorage.getItem('broomtech_admin_session');
+        if (cachedAdmin) {
+          const adminData = JSON.parse(cachedAdmin);
+          const expiry = adminData.expiry || 0;
+          
+          // Check if session is still valid (24 hour expiry)
+          if (expiry > Date.now()) {
+            console.log('Using cached admin session');
+            return adminData;
+          } else {
+            // Clear expired session
+            localStorage.removeItem('broomtech_admin_session');
+          }
+        }
+      } catch (err) {
+        console.error('Error checking cached session:', err);
+        localStorage.removeItem('broomtech_admin_session');
+      }
+      return null;
+    };
+
+    // Save admin session to localStorage
+    const saveAdminSession = (userData) => {
+      try {
+        // Create session with 24 hour expiry
+        const session = {
+          ...userData,
+          expiry: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        };
+        localStorage.setItem('broomtech_admin_session', JSON.stringify(session));
+      } catch (err) {
+        console.error('Error saving admin session:', err);
+      }
+    };
+
+    // Preload a single component
+    const preloadComponent = async (componentName) => {
+      if (preloadedComponents.value.has(componentName)) return;
+      
+      try {
+        await import(`../../views/admin/${componentName}.vue`);
+        preloadedComponents.value.add(componentName);
+        console.log(`Preloaded: ${componentName}`);
+      } catch (err) {
+        console.error(`Error preloading ${componentName}:`, err);
+      }
+    };
+
+    // Preload all admin components
+    const preloadAllComponents = () => {
+      // Start with Dashboard as highest priority
+      preloadComponent('Dashboard');
+      
+      // Then load other components with slight delays to avoid blocking
+      ADMIN_COMPONENTS.forEach((component, index) => {
+        if (component !== 'Dashboard') {
+          setTimeout(() => {
+            preloadComponent(component);
+          }, index * 100); // Stagger loading by 100ms per component
+        }
+      });
+    };
 
     // Toggle password visibility
     const togglePasswordVisibility = () => {
@@ -337,18 +421,65 @@ export default defineComponent({
       }
     };
 
+    // Cache for admin status to avoid repeated Firestore queries
+    const adminCache = new Map();
+
     const handleLogin = async () => {
       error.value = '';
       loading.value = true;
 
       try {
+        // Start preloading all components immediately
+        preloadAllComponents();
+        
+        // Check for cached session first
+        const cachedSession = checkCachedSession();
+        if (cachedSession) {
+          // Set user role directly from cache
+          authStore.userRole = 'admin';
+          
+          // Store admin data
+          await authStore.setUser(cachedSession);
+          
+          // Navigate to admin dashboard
+          router.push('/admin');
+          return;
+        }
+
         const auth = getAuth();
 
-        // First, attempt to sign in
+        // Attempt to sign in
         const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value);
         const user = userCredential.user;
 
         console.log("User authenticated:", user.uid);
+
+        // Check cache first for admin status
+        if (adminCache.has(user.uid)) {
+          console.log("Using cached admin status");
+          
+          // Set user role directly from cache
+          authStore.userRole = 'admin';
+          
+          // Store admin data
+          const adminData = {
+            ...user,
+            role: 'admin',
+            isAdmin: true,
+            ...adminCache.get(user.uid)
+          };
+          
+          await authStore.setUser(adminData);
+          
+          // Save session if remember me is checked
+          if (rememberMe.value) {
+            saveAdminSession(adminData);
+          }
+          
+          // Navigate to admin dashboard
+          router.push('/admin');
+          return;
+        }
 
         // Ensure admin document exists
         const adminCreated = await ensureAdminExists(user.uid);
@@ -367,25 +498,32 @@ export default defineComponent({
         }
 
         console.log("Admin document found:", adminDoc.data());
+        
+        // Cache admin data
+        adminCache.set(user.uid, adminDoc.data());
 
         // Directly set the userRole in the store
         authStore.userRole = 'admin';
 
         // Store admin data
-        await authStore.setUser({
+        const adminData = {
           ...user,
           role: 'admin',
           isAdmin: true,
           ...adminDoc.data()
-        });
+        };
+        
+        await authStore.setUser(adminData);
+        
+        // Save session if remember me is checked
+        if (rememberMe.value) {
+          saveAdminSession(adminData);
+        }
 
         console.log("User role set to:", authStore.userRole);
 
-        // Redirect to admin dashboard with a slight delay to ensure store updates
-        setTimeout(() => {
-          router.push('/admin');
-          console.log("Redirecting to admin dashboard");
-        }, 500);
+        // Navigate to admin dashboard
+        router.push('/admin');
 
       } catch (err) {
         console.error('Admin login error:', err);
@@ -402,10 +540,25 @@ export default defineComponent({
       }
     };
 
-    // Auto-fill credentials on mount
+    // Auto-fill credentials and preload dashboard on mount
     onMounted(() => {
       email.value = defaultEmail;
       password.value = defaultPassword;
+      
+      // Check for cached session on mount
+      const cachedSession = checkCachedSession();
+      if (cachedSession) {
+        // Auto-login if session exists
+        nextTick(() => {
+          authStore.userRole = 'admin';
+          authStore.setUser(cachedSession).then(() => {
+            router.push('/admin');
+          });
+        });
+      }
+      
+      // Start preloading components immediately
+      preloadAllComponents();
     });
 
     return {
@@ -416,7 +569,8 @@ export default defineComponent({
       error,
       showPassword,
       togglePasswordVisibility,
-      handleLogin
+      handleLogin,
+      preloadAllComponents
     };
   }
 });
