@@ -63,9 +63,10 @@
                           type="email" 
                           id="email" 
                           v-model="profileData.email"
-                          required
-                          class="mt-1 focus:ring-primary-500 focus:border-primary-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" 
+                          disabled
+                          class="mt-1 bg-gray-50 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md cursor-not-allowed" 
                         />
+                        <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
                       </div>
                       
                       <div class="col-span-6 sm:col-span-3">
@@ -156,69 +157,6 @@
                 </dd>
               </div>
               
-              <!-- Notification Settings -->
-              <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                <dt class="text-sm font-medium text-gray-500">Notification Settings</dt>
-                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                  <div class="space-y-4">
-                    <div class="flex items-start">
-                      <div class="flex items-center h-5">
-                        <input 
-                          id="email-notifications" 
-                          type="checkbox" 
-                          v-model="notificationSettings.email"
-                          class="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded" 
-                        />
-                      </div>
-                      <div class="ml-3 text-sm">
-                        <label for="email-notifications" class="font-medium text-gray-700">Email notifications</label>
-                        <p class="text-gray-500">Receive email notifications for booking updates and promotions.</p>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                      <div class="flex items-center h-5">
-                        <input 
-                          id="sms-notifications" 
-                          type="checkbox" 
-                          v-model="notificationSettings.sms"
-                          class="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded" 
-                        />
-                      </div>
-                      <div class="ml-3 text-sm">
-                        <label for="sms-notifications" class="font-medium text-gray-700">SMS notifications</label>
-                        <p class="text-gray-500">Receive SMS notifications for booking updates and promotions.</p>
-                      </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                      <div class="flex items-center h-5">
-                        <input 
-                          id="push-notifications" 
-                          type="checkbox" 
-                          v-model="notificationSettings.push"
-                          class="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded" 
-                        />
-                      </div>
-                      <div class="ml-3 text-sm">
-                        <label for="push-notifications" class="font-medium text-gray-700">Push notifications</label>
-                        <p class="text-gray-500">Receive push notifications for booking updates and promotions.</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="mt-4 flex justify-end">
-                    <button 
-                      @click="saveNotificationSettings"
-                      :disabled="savingNotifications"
-                      class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-                    >
-                      {{ savingNotifications ? 'Saving...' : 'Save Preferences' }}
-                    </button>
-                  </div>
-                </dd>
-              </div>
-              
               <!-- Account Actions -->
               <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Account Actions</dt>
@@ -297,11 +235,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
-import { EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
-import { auth } from '../../firebase/config';
+import { EmailAuthProvider, reauthenticateWithCredential, deleteUser, updatePassword } from 'firebase/auth';
+import { auth, db } from '../../firebase/config';
+import { doc, setDoc } from 'firebase/firestore';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -309,10 +248,10 @@ const authStore = useAuthStore();
 const loading = ref(true);
 const updatingProfile = ref(false);
 const changingPassword = ref(false);
-const savingNotifications = ref(false);
 const showDeleteAccountModal = ref(false);
 const deletingAccount = ref(false);
 const deleteConfirmation = ref('');
+const profileUpdated = ref(false);
 
 const profileData = reactive({
   firstName: '',
@@ -329,11 +268,12 @@ const passwordData = reactive({
   confirmPassword: ''
 });
 
-const notificationSettings = reactive({
-  email: true,
-  sms: true,
-  push: false
-});
+// Watch for changes in the auth store's userProfile
+watch(() => authStore.userProfile, (newProfile) => {
+  if (newProfile) {
+    loadUserProfile();
+  }
+}, { deep: true });
 
 const loadUserProfile = () => {
   if (authStore.userProfile) {
@@ -344,21 +284,18 @@ const loadUserProfile = () => {
     profileData.phone = authStore.userProfile.phone || '';
     profileData.address = authStore.userProfile.address || '';
     
-    // Load notification settings if available
-    if (authStore.userProfile.notificationSettings) {
-      notificationSettings.email = authStore.userProfile.notificationSettings.email ?? true;
-      notificationSettings.sms = authStore.userProfile.notificationSettings.sms ?? true;
-      notificationSettings.push = authStore.userProfile.notificationSettings.push ?? false;
-    }
-    
     loading.value = false;
   } else {
     // If user profile is not loaded yet, wait for it
     setTimeout(() => {
       if (authStore.userProfile) {
         loadUserProfile();
-      } else {
+      } else if (authStore.user) {
+        // If we have a user but no profile, create an empty profile
         loading.value = false;
+      } else {
+        // Redirect to login if no user is found after waiting
+        router.push('/login');
       }
     }, 1000);
   }
@@ -368,19 +305,46 @@ const updateProfile = async () => {
   updatingProfile.value = true;
   
   try {
-    await authStore.updateUserProfile({
+    // Make sure we have the user ID
+    if (!authStore.user?.id) {
+      throw new Error('User not authenticated');
+    }
+    
+    // Prepare the updated profile data
+    const updatedProfile = {
       firstName: profileData.firstName,
       middleName: profileData.middleName,
       lastName: profileData.lastName,
-      email: profileData.email,
       phone: profileData.phone,
-      address: profileData.address
+      address: profileData.address,
+      // Preserve other fields that might exist in the profile
+      ...(authStore.userProfile || {}),
+      // Make sure these fields are always set
+      id: authStore.user.id,
+      email: authStore.user.email,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Update the profile in Firestore directly to ensure it's saved
+    await setDoc(doc(db, 'users', authStore.user.id), updatedProfile, { merge: true });
+    
+    // Update the local store
+    authStore.setUser({
+      ...authStore.user,
+      ...updatedProfile
     });
     
+    // Set flag to show success message
+    profileUpdated.value = true;
+    
+    // Show success notification
     window.$notification?.success('Success', 'Profile updated successfully');
+    
+    // Reload the profile data to ensure we have the latest
+    loadUserProfile();
   } catch (error) {
     console.error('Error updating profile:', error);
-    window.$notification?.error('Error', 'Failed to update profile');
+    window.$notification?.error('Error', 'Failed to update profile: ' + error.message);
   } finally {
     updatingProfile.value = false;
   }
@@ -401,12 +365,18 @@ const changePassword = async () => {
   changingPassword.value = true;
   
   try {
-    // Re-authenticate user before changing password
+    // Get current user
     const user = auth.currentUser;
-    const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
     
+    // Re-authenticate user before changing password
+    const credential = EmailAuthProvider.credential(user.email, passwordData.currentPassword);
     await reauthenticateWithCredential(user, credential);
-    await authStore.changePassword(passwordData.newPassword);
+    
+    // Update password
+    await updatePassword(user, passwordData.newPassword);
     
     // Clear password fields
     passwordData.currentPassword = '';
@@ -420,31 +390,10 @@ const changePassword = async () => {
     if (error.code === 'auth/wrong-password') {
       window.$notification?.error('Error', 'Current password is incorrect');
     } else {
-      window.$notification?.error('Error', 'Failed to update password');
+      window.$notification?.error('Error', 'Failed to update password: ' + error.message);
     }
   } finally {
     changingPassword.value = false;
-  }
-};
-
-const saveNotificationSettings = async () => {
-  savingNotifications.value = true;
-  
-  try {
-    await authStore.updateUserProfile({
-      notificationSettings: {
-        email: notificationSettings.email,
-        sms: notificationSettings.sms,
-        push: notificationSettings.push
-      }
-    });
-    
-    window.$notification?.success('Success', 'Notification preferences saved');
-  } catch (error) {
-    console.error('Error saving notification settings:', error);
-    window.$notification?.error('Error', 'Failed to save notification preferences');
-  } finally {
-    savingNotifications.value = false;
   }
 };
 
@@ -457,6 +406,9 @@ const deleteAccount = async () => {
   
   try {
     const user = auth.currentUser;
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
     
     // Delete user account
     await deleteUser(user);
@@ -484,7 +436,19 @@ const deleteAccount = async () => {
 };
 
 onMounted(() => {
-  loadUserProfile();
+  // Check if user is authenticated
+  if (!authStore.user) {
+    // Try to initialize auth if not already done
+    authStore.initAuth().then(() => {
+      if (!authStore.user) {
+        // Redirect to login if still not authenticated
+        router.push('/login');
+        return;
+      }
+      loadUserProfile();
+    });
+  } else {
+    loadUserProfile();
+  }
 });
 </script>
-

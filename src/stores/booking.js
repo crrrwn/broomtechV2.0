@@ -13,6 +13,7 @@ import {
 } from "firebase/firestore"
 import { db } from "../firebase/config"
 import { useAuthStore } from "./auth"
+import { useNotificationStore } from "./notification"
 
 export const useBookingStore = defineStore("booking", {
   state: () => ({
@@ -21,6 +22,7 @@ export const useBookingStore = defineStore("booking", {
     loading: false,
     error: null,
     authStore: useAuthStore(), // Initialize authStore in the state
+    notificationStore: useNotificationStore(), // Initialize notificationStore in the state
   }),
 
   actions: {
@@ -75,6 +77,13 @@ export const useBookingStore = defineStore("booking", {
           id: newBooking.id,
           ...newBooking.data(),
         }
+
+        // Create notification for admin
+        await this.notificationStore.createBookingNotification({
+          id: newBooking.id,
+          userName: this.authStore.user.displayName || "A user",
+          service: bookingData.service || "delivery service",
+        })
 
         // Refresh the bookings list
         await this.getUserBookings()
@@ -182,6 +191,17 @@ export const useBookingStore = defineStore("booking", {
           this.bookings[index].cancelReason = reason
         }
 
+        // If the booking was paid, create a refund notification
+        const booking = await getDoc(bookingRef)
+        if (booking.exists() && booking.data().isPaid) {
+          await this.notificationStore.createRefundRequestNotification({
+            id: bookingId,
+            userName: this.authStore.user?.displayName || "A user",
+            amount: booking.data().totalAmount || 0,
+            cancelReason: reason,
+          })
+        }
+
         return true
       } catch (error) {
         console.error("Error cancelling booking:", error)
@@ -275,4 +295,3 @@ export const useBookingStore = defineStore("booking", {
     },
   },
 })
-

@@ -213,6 +213,109 @@ export const useNotificationStore = defineStore("notification", {
         throw error
       }
     },
+
+    async createAdminNotification(notificationData) {
+      try {
+        const notification = {
+          title: notificationData.title,
+          message: notificationData.message,
+          type: notificationData.type || "info",
+          link: notificationData.link || null,
+          isRead: false,
+          createdAt: serverTimestamp(),
+        }
+
+        const docRef = await addDoc(collection(db, "adminNotifications"), notification)
+
+        return docRef.id
+      } catch (error) {
+        console.error("Error creating admin notification:", error)
+        throw error
+      }
+    },
+
+    async createBookingNotification(bookingData) {
+      try {
+        await addDoc(collection(db, "adminNotifications"), {
+          title: "New Booking Request",
+          message: `${bookingData.userName || "A user"} has placed a new booking for ${bookingData.service || "a service"}.`,
+          type: "booking_request",
+          bookingId: bookingData.id,
+          isRead: false,
+          createdAt: serverTimestamp(),
+        })
+      } catch (error) {
+        console.error("Error creating booking notification:", error)
+        throw error
+      }
+    },
+
+    async createPaymentVerificationNotification(paymentData) {
+      try {
+        await addDoc(collection(db, "adminNotifications"), {
+          title: "Payment Verification Required",
+          message: `${paymentData.userName || "A user"} has submitted payment proof for order #${paymentData.id.substring(0, 8)}.`,
+          type: "payment_verification",
+          bookingId: paymentData.id,
+          isRead: false,
+          createdAt: serverTimestamp(),
+        })
+      } catch (error) {
+        console.error("Error creating payment verification notification:", error)
+        throw error
+      }
+    },
+
+    async createContactFormNotification(contactData) {
+      try {
+        await addDoc(collection(db, "adminNotifications"), {
+          title: "New Contact Form Submission",
+          message: `${contactData.name || "Someone"} has submitted a contact form: "${contactData.subject || "No subject"}"`,
+          type: "contact_form",
+          contactId: contactData.id,
+          email: contactData.email || "",
+          details: contactData.message || "",
+          isRead: false,
+          createdAt: serverTimestamp(),
+        })
+      } catch (error) {
+        console.error("Error creating contact form notification:", error)
+        throw error
+      }
+    },
+
+    async createRefundRequestNotification(refundData) {
+      try {
+        await addDoc(collection(db, "adminNotifications"), {
+          title: "Refund Request",
+          message: `${refundData.userName || "A user"} has requested a refund for order #${refundData.id.substring(0, 8)}.`,
+          type: "refund_request",
+          bookingId: refundData.id,
+          amount: refundData.amount || 0,
+          reason: refundData.cancelReason || "",
+          isRead: false,
+          createdAt: serverTimestamp(),
+        })
+      } catch (error) {
+        console.error("Error creating refund request notification:", error)
+        throw error
+      }
+    },
+
+    async createDriverNotification(driverData) {
+      try {
+        await addDoc(collection(db, "adminNotifications"), {
+          title: "New Driver Application",
+          message: `${driverData.fullName || "A driver"} has submitted a new driver application.`,
+          type: "driver_application",
+          driverId: driverData.id,
+          isRead: false,
+          createdAt: serverTimestamp(),
+        })
+      } catch (error) {
+        console.error("Error creating driver notification:", error)
+        throw error
+      }
+    },
   },
 })
-

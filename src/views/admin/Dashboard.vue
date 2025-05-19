@@ -7,7 +7,7 @@
       
       <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white md:text-4xl">Admin Dashboard</h1>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-white md:text-4xl">Admin Dashboard</h1>
           <p class="mt-2 max-w-xl text-green-50">Get a comprehensive overview of your business metrics and operations</p>
         </div>
         <div class="mt-4 flex flex-wrap gap-2 items-center sm:mt-0">
@@ -69,7 +69,7 @@
       <div class="overflow-hidden rounded-lg sm:rounded-xl bg-white p-4 sm:p-6 shadow-sm">
         <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
           <svg class="h-6 w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
         
@@ -253,8 +253,7 @@
                       class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors duration-150 hover:bg-gray-50"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" class="mr-1 sm:mr-1.5 h-3 sm:h-3.5 w-3 sm:w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                       </svg>
                       View
                     </button>
@@ -383,6 +382,9 @@
       </div>
     </div>
     
+    <!-- Admin Notifications Component -->
+    <AdminNotifications />
+    
     <!-- Payment Proof Modal -->
     <div v-if="showProofModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
       <div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
@@ -493,6 +495,7 @@
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -502,9 +505,15 @@ import { collection, query, where, getDocs, orderBy, limit, doc, updateDoc, serv
 import { db } from '../../firebase/config';
 import { useAdminStore } from '../../stores/admin';
 import { useNotification } from '../../composables/useNotification';
+// Add the import for AdminNotifications component at the top of the script section
+import AdminNotifications from '../../components/admin/AdminNotifications.vue';
+import { useNotificationStore } from '../../stores/notification';
 
 const adminStore = useAdminStore();
 const { showNotification } = useNotification();
+
+// Add the notification store to the existing stores
+const notificationStore = useNotificationStore();
 
 // Loading states
 const isLoadingStats = ref(true);
@@ -531,6 +540,10 @@ const verificationNotes = ref('');
 const pendingDriversCount = ref(0);
 const unassignedBookingsCount = ref(0);
 const pendingRefundsCount = ref(0);
+
+// Add this to the existing refs
+const adminNotifications = ref([]);
+const isLoadingNotifications = ref(true);
 
 const getStatusClass = (status) => {
   switch (status.toLowerCase()) {
@@ -575,7 +588,9 @@ const fetchDashboardData = async () => {
       fetchPendingPayments(),
       fetchRecentActivities(),
       fetchUnassignedBookings(),
-      fetchPendingRefunds()
+      fetchPendingRefunds(),
+      // Add this to the fetchDashboardData function's promises array
+      fetchAdminNotifications(),
     ];
     
     // Wait for analytics data
@@ -586,6 +601,15 @@ const fetchDashboardData = async () => {
     // Wait for pending drivers
     const pendingDrivers = await promises[1];
     pendingDriversCount.value = pendingDrivers.length;
+
+    // Check for unread notifications
+    const unreadNotificationsQuery = query(
+      collection(db, 'adminNotifications'),
+      where('isRead', '==', false)
+    );
+    const unreadNotificationsSnapshot = await getDocs(unreadNotificationsQuery);
+    const unreadNotificationsCount = unreadNotificationsSnapshot.size;
+    console.log("Unread notifications:", unreadNotificationsCount);
     
     // Other data will resolve on their own and update the UI
   } catch (error) {
@@ -731,6 +755,84 @@ const fetchRecentActivities = async () => {
   }
 };
 
+// Add this function to fetch admin notifications
+const fetchAdminNotifications = async () => {
+  try {
+    isLoadingNotifications.value = true;
+    
+    // Query admin notifications
+    const q = query(
+      collection(db, 'adminNotifications'),
+      orderBy('createdAt', 'desc'),
+      limit(10)
+    );
+    
+    const notificationsSnapshot = await getDocs(q);
+    const notifications = [];
+    
+    notificationsSnapshot.forEach(doc => {
+      notifications.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    adminNotifications.value = notifications;
+    
+    // Also fetch regular notifications for the admin user
+    await notificationStore.fetchNotifications();
+    
+  } catch (error) {
+    console.error('Error fetching admin notifications:', error);
+    showNotification({
+      type: 'error',
+      title: 'Error',
+      message: 'Failed to load notifications'
+    });
+  } finally {
+    isLoadingNotifications.value = false;
+  }
+};
+
+// Enhance the notification fetching system by adding a function to create notification records
+// when specific events happen - Add this after the fetchAdminNotifications function
+
+// Add this function to register notifications for new bookings
+const registerBookingNotification = async (bookingData) => {
+  try {
+    await notificationStore.createBookingNotification(bookingData);
+  } catch (error) {
+    console.error('Error creating booking notification:', error);
+  }
+};
+
+// Add this function to register notifications for payment verifications
+const registerPaymentNotification = async (paymentData) => {
+  try {
+    await notificationStore.createPaymentVerificationNotification(paymentData);
+  } catch (error) {
+    console.error('Error creating payment notification:', error);
+  }
+};
+
+// Add this function to register notifications for refund requests
+const registerRefundNotification = async (refundData) => {
+  try {
+    await notificationStore.createRefundRequestNotification(refundData);
+  } catch (error) {
+    console.error('Error creating refund notification:', error);
+  }
+};
+
+// Add this function to register notifications for driver applications
+const registerDriverNotification = async (driverData) => {
+  try {
+    await notificationStore.createDriverNotification(driverData);
+  } catch (error) {
+    console.error('Error creating driver notification:', error);
+  }
+};
+
 const viewPaymentProof = (payment) => {
   selectedPayment.value = payment;
   verificationNotes.value = '';
@@ -847,6 +949,51 @@ onBeforeMount(() => {
 });
 
 // No need for additional onMounted since we're already fetching data in onBeforeMount
+
+// Add this to the existing fetchDashboardData function
+// This code should be REMOVED as it's a duplicate function declaration
+// const fetchDashboardData = async () => {
+//   try {
+//     // Fetch all data in parallel for faster loading
+//     const promises = [
+//       adminStore.getAnalytics(),
+//       adminStore.getPendingDrivers(),
+//       fetchPendingPayments(),
+//       fetchRecentActivities(),
+//       fetchUnassignedBookings(),
+//       fetchPendingRefunds(),
+//       // Add this to the fetchDashboardData function's promises array
+//       fetchAdminNotifications(),
+//     ];
+//     
+//     // Wait for analytics data
+//     const analytics = await promises[0];
+//     dashboardStats.value = analytics;
+//     isLoadingStats.value = false;
+//     
+//     // Wait for pending drivers
+//     const pendingDrivers = await promises[1];
+//     pendingDriversCount.value = pendingDrivers.length;
+//
+//     const unreadNotificationsQuery = query(
+//       collection(db, 'adminNotifications'),
+//       where('isRead', '==', false)
+//     );
+//     const unreadNotificationsSnapshot = await getDocs(unreadNotificationsQuery);
+//     const unreadNotificationsCount = unreadNotificationsSnapshot.size;
+//     console.log("Unread notifications:", unreadNotificationsCount)
+//     
+//     // Other data will resolve on their own and update the UI
+//   } catch (error) {
+//     console.error('Error fetching dashboard data:', error);
+//     isLoadingStats.value = false;
+//     showNotification({
+//       type: 'error',
+//       title: 'Error',
+//       message: 'Failed to load dashboard data'
+//     });
+//   }
+// };
 </script>
 
 <style>

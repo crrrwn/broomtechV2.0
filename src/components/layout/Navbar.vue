@@ -159,9 +159,9 @@
                 class="flex items-center text-sm font-medium text-white hover:text-gray-200 focus:outline-none bg-green-700 bg-opacity-30 px-4 py-2 rounded-full transition-all duration-300 hover:bg-opacity-50 hover:shadow-md"
               >
                 <div class="h-7 w-7 rounded-full bg-white text-green-600 flex items-center justify-center font-bold mr-2 shadow-sm">
-                  {{ authStore.user.displayName ? authStore.user.displayName.charAt(0).toUpperCase() : 'U' }}
+                  {{ username.charAt(0).toUpperCase() }}
                 </div>
-                <span class="mr-2">{{ authStore.user.displayName || 'User' }}</span>
+                <span class="mr-2">{{ username }}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300" :class="{'rotate-180': isDropdownOpen}" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                 </svg>
@@ -410,11 +410,11 @@
         <div v-if="authStore.user" class="flex items-center px-5">
           <div class="flex-shrink-0">
             <div class="h-12 w-12 rounded-full bg-white flex items-center justify-center text-green-600 font-bold text-lg shadow-md">
-              {{ authStore.user.displayName ? authStore.user.displayName.charAt(0).toUpperCase() : 'U' }}
+              {{ username.charAt(0).toUpperCase() }}
             </div>
           </div>
           <div class="ml-4">
-            <div class="text-base font-medium text-white">{{ authStore.user.displayName || 'User' }}</div>
+            <div class="text-base font-medium text-white">{{ username }}</div>
             <div class="text-sm font-medium text-green-200">{{ authStore.user.email }}</div>
           </div>
           <NotificationBell v-if="authStore.user" class="ml-auto" />
@@ -533,6 +533,18 @@ watch(() => route.path, () => {
     isMobileMenuOpen.value = false;
     document.body.style.overflow = '';
   }
+});
+
+const username = computed(() => {
+  if (!authStore.user) return 'User';
+  
+  // Try to get the username from different possible properties
+  return authStore.user.displayName || 
+         authStore.user.username || 
+         authStore.userProfile?.displayName || 
+         authStore.userProfile?.username || 
+         authStore.user.email?.split('@')[0] || 
+         'User';
 });
 
 onMounted(() => {

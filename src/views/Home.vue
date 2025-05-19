@@ -445,15 +445,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -512,12 +503,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -557,12 +542,129 @@
         </div>
       </div>
     </section>
+  
+    <!-- Add this contact form section at the end before the closing </div> of your main page -->
+    <section id="contact" class="bg-white py-8 sm:py-12 md:py-16 lg:py-20">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <div class="inline-block px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-green-100 text-green-700 text-xs sm:text-sm font-medium mb-3 sm:mb-4 shadow-sm">
+            Get in Touch
+          </div>
+          <h2 class="text-xl xs:text-2xl sm:text-3xl md:text-4xl leading-tight font-extrabold tracking-tight text-gray-900">
+            Need help? <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-lime-500">Contact us</span>
+          </h2>
+          <div class="mt-3 sm:mt-4 h-1 w-16 sm:w-20 bg-gradient-to-r from-green-400 to-lime-500 rounded-full mx-auto"></div>
+          <p class="mt-3 sm:mt-6 text-sm xs:text-base sm:text-lg md:text-xl text-gray-500">
+            We'd love to hear from you. Fill out the form below and we'll get back to you as soon as possible.
+          </p>
+        </div>
+
+        <div class="mt-8 sm:mt-12 max-w-lg mx-auto">
+          <form @submit.prevent="submitContactForm" class="grid grid-cols-1 gap-y-4">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+              <input 
+                type="text" 
+                id="name" 
+                v-model="contactForm.name" 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                placeholder="Your name"
+                required
+              />
+            </div>
+            
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+              <input 
+                type="email" 
+                id="email" 
+                v-model="contactForm.email" 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                placeholder="your.email@example.com"
+                required
+              />
+            </div>
+            
+            <div>
+              <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+              <input 
+                type="text" 
+                id="subject" 
+                v-model="contactForm.subject" 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                placeholder="What is this regarding?"
+                required
+              />
+            </div>
+            
+            <div>
+              <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+              <textarea 
+                id="message" 
+                v-model="contactForm.message" 
+                rows="4" 
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+                placeholder="Your message here..."
+                required
+              ></textarea>
+            </div>
+            
+            <div class="flex items-center">
+              <input 
+                id="terms" 
+                type="checkbox" 
+                v-model="contactForm.agreedToTerms" 
+                class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500" 
+                required
+              />
+              <label for="terms" class="ml-2 block text-sm text-gray-700">
+                I agree to the <a href="#" class="font-medium text-green-600 hover:text-green-500">Terms and Conditions</a>
+              </label>
+            </div>
+            
+            <div class="mt-4">
+              <button 
+                type="submit" 
+                :disabled="isSubmitting"
+                class="w-full inline-flex items-center justify-center rounded-lg border border-transparent bg-green-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:bg-green-400 disabled:cursor-not-allowed"
+              >
+                <svg v-if="isSubmitting" class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+              </button>
+            </div>
+          </form>
+          
+          <div v-if="formSubmitted" class="mt-6 rounded-md bg-green-50 p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-800">Message sent successfully!</h3>
+                <div class="mt-2 text-sm text-green-700">
+                  <p>Thank you for reaching out. We'll get back to you as soon as possible.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End of Contact Form Section -->
   </div>
 </template>
   
 <script setup>
 import { ref, onMounted } from 'vue';
-  
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase/config";
+import { useNotificationStore } from "../stores/notification";
+
 const videoRef = ref(null);
   
 onMounted(() => {
@@ -624,6 +726,67 @@ const services = ref([
     description: 'Need medicine but can\'t leave home? We can pick up your prescriptions and deliver them to you.'
   }
 ]);
+
+// New code for contact form
+const notificationStore = useNotificationStore();
+
+const contactForm = ref({
+  name: '',
+  email: '',
+  subject: '',
+  message: '',
+  agreedToTerms: false
+});
+
+const isSubmitting = ref(false);
+const formSubmitted = ref(false);
+
+const submitContactForm = async () => {
+  try {
+    isSubmitting.value = true;
+    
+    // Add contact form data to Firestore
+    const contactData = {
+      name: contactForm.value.name,
+      email: contactForm.value.email,
+      subject: contactForm.value.subject,
+      message: contactForm.value.message,
+      createdAt: serverTimestamp()
+    };
+    
+    // Save the contact form submission
+    const contactRef = await addDoc(collection(db, 'contactForms'), contactData);
+    
+    // Also create a notification for admins
+    await notificationStore.createContactFormNotification({
+      ...contactData,
+      id: contactRef.id
+    });
+    
+    // Reset the form
+    contactForm.value = {
+      name: '',
+      email: '',
+      subject: '',
+      message: '',
+      agreedToTerms: false
+    };
+    
+    // Show success message
+    formSubmitted.value = true;
+    
+    // Hide success message after 5 seconds
+    setTimeout(() => {
+      formSubmitted.value = false;
+    }, 5000);
+    
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
+    alert('There was an error submitting your message. Please try again later.');
+  } finally {
+    isSubmitting.value = false;
+  }
+};
 </script>
   
 <style>

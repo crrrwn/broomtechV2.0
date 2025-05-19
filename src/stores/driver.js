@@ -13,6 +13,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore"
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage"
+import { useNotificationStore } from "./notification"
 
 const auth = getAuth()
 const storage = getStorage()
@@ -41,6 +42,12 @@ export const useDriverStore = defineStore("driver", {
           vehicleFileName: vehicleFile ? vehicleFile.name : null,
           createdAt: serverTimestamp(),
         })
+
+        // Create notification for admin
+        const notificationStore = useNotificationStore()
+
+        // Create driver application notification
+        await notificationStore.createDriverApplicationNotification(driverData.fullName || driverData.name, docRef.id)
 
         return docRef.id
       } catch (error) {
@@ -211,6 +218,15 @@ export const useDriverStore = defineStore("driver", {
 
         const applicationRef = await addDoc(collection(db, "driver-applications"), applicationData)
 
+        // Create notification for admin
+        const notificationStore = useNotificationStore()
+
+        // Create driver application notification
+        await notificationStore.createDriverApplicationNotification(
+          driverData.fullName || driverData.name,
+          applicationRef.id,
+        )
+
         this.driverApplicationId = applicationRef.id
         this.loading = false
         return applicationRef.id
@@ -223,4 +239,3 @@ export const useDriverStore = defineStore("driver", {
     },
   },
 })
-
